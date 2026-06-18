@@ -29,30 +29,30 @@ export default function AdminDashboard({ showToast }) {
   const publishedCourses = courses.filter(c => c.status === 'PUBLISHED');
 
   return (
-    <div className="p-7 page-enter">
+    <div className="p-4 md:p-7 page-enter">
       <div className="mb-6">
         <h2 className="text-xl font-semibold text-navy-900">Admin Dashboard</h2>
         <p className="text-slate-400 text-sm mt-1">HemoLabs Learning Management — Live Overview</p>
       </div>
 
       {/* Stat cards */}
-      <div className="grid grid-cols-4 gap-4 mb-7">
+      <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 md:gap-4 mb-6">
         {statCards.map(s => (
-          <div key={s.label} className="bg-white rounded-2xl border border-slate-100 p-5 flex items-center gap-4 shadow-sm">
-            <div className="w-12 h-12 rounded-xl flex items-center justify-center flex-shrink-0" style={{ background: s.bg, color: s.color }}>
-              <Icon name={s.icon} size={22} />
+          <div key={s.label} className="bg-white rounded-2xl border border-slate-100 p-4 md:p-5 flex items-center gap-3 md:gap-4 shadow-sm">
+            <div className="w-10 h-10 md:w-12 md:h-12 rounded-xl flex items-center justify-center flex-shrink-0" style={{ background: s.bg, color: s.color }}>
+              <Icon name={s.icon} size={20} />
             </div>
             <div>
-              <div className="text-3xl font-light text-navy-900">{s.val}</div>
-              <div className="text-xs text-slate-400 mt-0.5">{s.label}</div>
+              <div className="text-2xl md:text-3xl font-light text-navy-900">{s.val}</div>
+              <div className="text-[11px] md:text-xs text-slate-400 mt-0.5">{s.label}</div>
             </div>
           </div>
         ))}
       </div>
 
       {/* Completion + In-progress */}
-      <div className="grid grid-cols-2 gap-5 mb-5">
-        <div className="bg-white rounded-2xl border border-slate-100 p-6 shadow-sm">
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-5">
+        <div className="bg-white rounded-2xl border border-slate-100 p-5 shadow-sm">
           <div className="flex items-center justify-between mb-5">
             <h3 className="text-sm font-semibold text-navy-900">Course Completion Rate</h3>
             <Badge variant="green">{summary.completionRate}%</Badge>
@@ -64,7 +64,7 @@ export default function AdminDashboard({ showToast }) {
             return (
               <div key={c.id} className="mb-3.5">
                 <div className="flex justify-between mb-1.5">
-                  <span className="text-xs text-slate-600 font-medium truncate flex-1 pr-3">{c.title.length > 42 ? c.title.slice(0, 42) + '…' : c.title}</span>
+                  <span className="text-xs text-slate-600 font-medium truncate flex-1 pr-3">{c.title.length > 36 ? c.title.slice(0, 36) + '…' : c.title}</span>
                   <span className="text-xs text-slate-400 flex-shrink-0">{done}/{enr.length}</span>
                 </div>
                 <div className="progress-bar"><div className="progress-fill" style={{ width: `${pct}%` }} /></div>
@@ -74,7 +74,7 @@ export default function AdminDashboard({ showToast }) {
           {publishedCourses.length === 0 && <p className="text-xs text-slate-400">No published courses yet.</p>}
         </div>
 
-        <div className="bg-white rounded-2xl border border-slate-100 p-6 shadow-sm">
+        <div className="bg-white rounded-2xl border border-slate-100 p-5 shadow-sm">
           <div className="flex items-center justify-between mb-5">
             <h3 className="text-sm font-semibold text-navy-900">In-Progress Enrollments</h3>
             <Badge variant="blue">{inProgress.length}</Badge>

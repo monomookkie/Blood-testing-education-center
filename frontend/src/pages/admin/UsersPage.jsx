@@ -19,7 +19,10 @@ export default function UsersPage({ showToast }) {
 
   useEffect(() => { api.getUsers().then(setUsers); }, []);
 
-  const filtered = users.filter(u => u.name.toLowerCase().includes(search.toLowerCase()) || u.email.toLowerCase().includes(search.toLowerCase()));
+  const filtered = users.filter(u =>
+    u.name.toLowerCase().includes(search.toLowerCase()) ||
+    u.email.toLowerCase().includes(search.toLowerCase())
+  );
 
   const openNew = () => { setForm(EMPTY_FORM); setEditId(null); setShowModal(true); };
   const openEdit = (u) => { setForm({ name: u.name, email: u.email, password: '', role: u.role, dept: u.dept }); setEditId(u.id); setShowModal(true); };
@@ -54,24 +57,25 @@ export default function UsersPage({ showToast }) {
   const inputCls = 'w-full px-3 py-2 rounded-xl border border-slate-200 bg-slate-50 text-sm focus:outline-none focus:border-brand-500 focus:bg-white transition-all';
 
   return (
-    <div className="p-7 page-enter">
+    <div className="p-4 md:p-7 page-enter">
       <div className="flex items-center justify-between mb-6">
         <div>
           <h2 className="text-xl font-semibold text-navy-900">Staff Directory</h2>
           <p className="text-slate-400 text-sm mt-1">{users.length} registered users</p>
         </div>
-        <button onClick={openNew} className="flex items-center gap-2 px-4 py-2 bg-brand-500 hover:bg-brand-600 text-white rounded-xl text-sm font-medium transition-colors">
-          <Icon name="plus" size={15} /> Add User
+        <button onClick={openNew} className="flex items-center gap-2 px-3 md:px-4 py-2 bg-brand-500 hover:bg-brand-600 text-white rounded-xl text-sm font-medium transition-colors">
+          <Icon name="plus" size={15} /> <span className="hidden sm:inline">Add User</span>
         </button>
       </div>
 
       <div className="relative mb-5">
         <Icon name="search" size={15} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400" />
-        <input value={search} onChange={e => setSearch(e.target.value)} placeholder="Search by name or email…"
+        <input value={search} onChange={e => setSearch(e.target.value)} placeholder="Search…"
           className="w-full pl-10 pr-4 py-2.5 rounded-xl border border-slate-200 bg-white text-sm focus:outline-none focus:border-brand-500" />
       </div>
 
-      <div className="bg-white rounded-2xl border border-slate-100 shadow-sm overflow-hidden">
+      {/* Desktop table */}
+      <div className="hidden md:block bg-white rounded-2xl border border-slate-100 shadow-sm overflow-hidden">
         <table className="w-full">
           <thead>
             <tr className="border-b border-slate-100 bg-slate-50">
@@ -106,6 +110,38 @@ export default function UsersPage({ showToast }) {
             ))}
           </tbody>
         </table>
+        {filtered.length === 0 && <div className="text-center py-12 text-slate-400 text-sm">No users found.</div>}
+      </div>
+
+      {/* Mobile cards */}
+      <div className="md:hidden space-y-3">
+        {filtered.map(u => (
+          <div key={u.id} className="bg-white rounded-2xl border border-slate-100 p-4 shadow-sm">
+            <div className="flex items-center gap-3 mb-3">
+              <Avatar initials={u.avatar} size={38} />
+              <div className="flex-1 min-w-0">
+                <div className="text-sm font-medium text-navy-900 truncate">{u.name}</div>
+                <div className="text-xs text-slate-400 truncate">{u.email}</div>
+              </div>
+              <Badge variant={u.role === 'ADMIN' ? 'red' : 'blue'}>{u.role}</Badge>
+            </div>
+            <div className="flex items-center gap-3 text-xs text-slate-500 mb-3">
+              <span>{u.dept}</span>
+              <span>·</span>
+              <span>{u._count?.enrollments ?? 0} enrolled</span>
+              <span>·</span>
+              <span>{u._count?.certificates ?? 0} certs</span>
+            </div>
+            <div className="flex gap-2">
+              <button onClick={() => openEdit(u)} className="flex-1 py-2 rounded-xl border border-slate-200 text-xs font-medium text-slate-600 hover:bg-slate-50 flex items-center justify-center gap-1.5">
+                <Icon name="edit" size={13}/> Edit
+              </button>
+              <button onClick={() => setConfirmDel(u.id)} className="flex-1 py-2 rounded-xl border border-red-100 text-xs font-medium text-red-500 hover:bg-red-50 flex items-center justify-center gap-1.5">
+                <Icon name="trash" size={13}/> Delete
+              </button>
+            </div>
+          </div>
+        ))}
         {filtered.length === 0 && <div className="text-center py-12 text-slate-400 text-sm">No users found.</div>}
       </div>
 

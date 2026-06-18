@@ -14,7 +14,7 @@ export default function MyCertificates({ user, showToast }) {
   if (loading) return <div className="flex items-center justify-center h-64 text-slate-400 text-sm">Loading…</div>;
 
   return (
-    <div className="p-7 page-enter">
+    <div className="p-4 md:p-7 page-enter">
       <div className="mb-6">
         <h2 className="text-xl font-semibold text-navy-900">My Certificates</h2>
         <p className="text-slate-400 text-sm mt-1">{certs.length} certificates earned</p>
@@ -26,11 +26,10 @@ export default function MyCertificates({ user, showToast }) {
           <p className="text-sm">No certificates yet. Complete a course to earn one.</p>
         </div>
       ) : (
-        <div className="grid grid-cols-2 gap-4">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           {certs.map(c => (
-            <div key={c.id} className="bg-white rounded-2xl border border-slate-100 p-6 shadow-sm">
-              {/* Certificate preview */}
-              <div className="rounded-xl p-5 mb-4 text-white text-center" style={{ background: 'linear-gradient(135deg,#0D1B2A,#1A56DB)' }}>
+            <div key={c.id} className="bg-white rounded-2xl border border-slate-100 p-5 md:p-6 shadow-sm">
+              <div className="rounded-xl p-4 md:p-5 mb-4 text-white text-center" style={{ background: 'linear-gradient(135deg,#0D1B2A,#1A56DB)' }}>
                 <div className="font-mono font-bold text-2xl mb-1">HML</div>
                 <div className="text-[10px] uppercase tracking-widest opacity-60 mb-4">Certificate of Completion</div>
                 <div className="text-xs opacity-70 mb-1">This certifies that</div>

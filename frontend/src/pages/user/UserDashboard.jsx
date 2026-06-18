@@ -2,7 +2,6 @@ import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { api } from '../../api';
 import Icon from '../../components/ui/Icon';
-import Avatar from '../../components/ui/Avatar';
 import Badge from '../../components/ui/Badge';
 
 export default function UserDashboard({ user, showToast }) {
@@ -24,33 +23,32 @@ export default function UserDashboard({ user, showToast }) {
   const certs = enrollments.filter(e => e.certificate);
 
   return (
-    <div className="p-7 page-enter">
-      {/* Welcome */}
+    <div className="p-4 md:p-7 page-enter">
       <div className="mb-6">
         <h2 className="text-xl font-semibold text-navy-900">Welcome back, {user.name.split(' ')[0]}</h2>
         <p className="text-slate-400 text-sm mt-1">{user.dept}</p>
       </div>
 
       {/* Stats */}
-      <div className="grid grid-cols-3 gap-4 mb-7">
+      <div className="grid grid-cols-3 gap-3 md:gap-4 mb-6">
         {[
           { label: 'In Progress', val: inProgress.length, icon: 'book', color: '#1A56DB', bg: '#EEF3FF' },
-          { label: 'Completed', val: completed.length, icon: 'check', color: '#1A7A4A', bg: '#F0FDF4' },
-          { label: 'Certificates', val: certs.length, icon: 'cert', color: '#6D28D9', bg: '#F5F3FF' },
+          { label: 'Completed',   val: completed.length,  icon: 'check', color: '#1A7A4A', bg: '#F0FDF4' },
+          { label: 'Certificates',val: certs.length,      icon: 'cert', color: '#6D28D9', bg: '#F5F3FF' },
         ].map(s => (
-          <div key={s.label} className="bg-white rounded-2xl border border-slate-100 p-5 flex items-center gap-4 shadow-sm">
-            <div className="w-11 h-11 rounded-xl flex items-center justify-center flex-shrink-0" style={{ background: s.bg, color: s.color }}>
-              <Icon name={s.icon} size={20} />
+          <div key={s.label} className="bg-white rounded-2xl border border-slate-100 p-3 md:p-5 flex flex-col sm:flex-row items-center sm:items-start gap-2 md:gap-4 shadow-sm">
+            <div className="w-9 h-9 md:w-11 md:h-11 rounded-xl flex items-center justify-center flex-shrink-0" style={{ background: s.bg, color: s.color }}>
+              <Icon name={s.icon} size={18} />
             </div>
-            <div>
-              <div className="text-3xl font-light text-navy-900">{s.val}</div>
-              <div className="text-xs text-slate-400 mt-0.5">{s.label}</div>
+            <div className="text-center sm:text-left">
+              <div className="text-2xl md:text-3xl font-light text-navy-900">{s.val}</div>
+              <div className="text-[10px] md:text-xs text-slate-400 mt-0.5">{s.label}</div>
             </div>
           </div>
         ))}
       </div>
 
-      <div className="grid grid-cols-2 gap-5">
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-5">
         {/* My Courses */}
         <div className="bg-white rounded-2xl border border-slate-100 p-5 shadow-sm">
           <div className="flex items-center justify-between mb-4">
@@ -67,7 +65,9 @@ export default function UserDashboard({ user, showToast }) {
                 <div className="progress-bar"><div className="progress-fill" style={{ width: `${e.progress}%` }} /></div>
               </div>
             ))}
-            {enrollments.length === 0 && <p className="text-xs text-slate-400">No enrollments yet. <button onClick={() => navigate('/courses')} className="text-brand-500 hover:underline">Browse courses →</button></p>}
+            {enrollments.length === 0 && (
+              <p className="text-xs text-slate-400">No enrollments yet. <button onClick={() => navigate('/courses')} className="text-brand-500 hover:underline">Browse courses →</button></p>
+            )}
           </div>
         </div>
 

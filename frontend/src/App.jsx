@@ -1,3 +1,4 @@
+import { useState } from 'react';
 import { Routes, Route, Navigate, useNavigate } from 'react-router-dom';
 import { useAuth } from './hooks/useAuth';
 import { useToast } from './hooks/useToast';
@@ -21,12 +22,24 @@ import MyCertificates from './pages/user/MyCertificates';
 import MyReport from './pages/user/MyReport';
 
 function AppLayout({ user, onLogout, showToast }) {
+  const [sidebarOpen, setSidebarOpen] = useState(false);
   const pageProps = { user, showToast };
+
   return (
     <div className="flex min-h-screen bg-slate-50">
-      <Sidebar user={user} onLogout={onLogout} />
+      {/* Mobile overlay */}
+      {sidebarOpen && (
+        <div className="fixed inset-0 z-20 bg-black/50 lg:hidden" onClick={() => setSidebarOpen(false)} />
+      )}
+
+      {/* Sidebar */}
+      <div className={`fixed inset-y-0 left-0 z-30 transition-transform duration-300 lg:static lg:translate-x-0 ${sidebarOpen ? 'translate-x-0' : '-translate-x-full'}`}>
+        <Sidebar user={user} onLogout={onLogout} onClose={() => setSidebarOpen(false)} />
+      </div>
+
+      {/* Main */}
       <div className="flex-1 flex flex-col min-w-0">
-        <TopBar user={user} />
+        <TopBar user={user} onMenuClick={() => setSidebarOpen(o => !o)} />
         <div className="flex-1 overflow-auto">
           <Routes>
             {user.role === 'ADMIN' ? (
@@ -44,7 +57,7 @@ function AppLayout({ user, onLogout, showToast }) {
                 <Route path="/dashboard" element={<UserDashboard {...pageProps} />} />
                 <Route path="/courses"   element={<BrowseCourses {...pageProps} />} />
                 <Route path="/certs"     element={<MyCertificates {...pageProps} />} />
-                <Route path="/report"   element={<MyReport {...pageProps} />} />
+                <Route path="/report"    element={<MyReport {...pageProps} />} />
                 <Route path="*" element={<Navigate to="/dashboard" replace />} />
               </>
             )}

@@ -1,5 +1,6 @@
 import { useLocation } from 'react-router-dom';
 import Badge from './ui/Badge';
+import Icon from './ui/Icon';
 
 const titles = {
   '/admin/dashboard':    'Dashboard',
@@ -14,14 +15,21 @@ const titles = {
   '/report':             'My Report',
 };
 
-export default function TopBar({ user }) {
+export default function TopBar({ user, onMenuClick }) {
   const { pathname } = useLocation();
   const title = titles[pathname] || 'HemoLabs LMS';
+
   return (
-    <div className="h-14 bg-white border-b border-slate-100 px-7 flex items-center justify-between flex-shrink-0">
-      <div className="flex items-center gap-2.5">
-        <div className="w-2 h-2 rounded-full bg-emerald-500" style={{ boxShadow: '0 0 0 3px rgba(16,185,129,.15)' }} />
-        <span className="text-sm font-semibold text-navy-900">{title}</span>
+    <div className="h-14 bg-white border-b border-slate-100 px-4 md:px-7 flex items-center justify-between flex-shrink-0">
+      <div className="flex items-center gap-3">
+        {/* Hamburger — mobile only */}
+        <button onClick={onMenuClick} className="lg:hidden p-1.5 rounded-lg hover:bg-slate-100 text-slate-500">
+          <Icon name="grid" size={18} />
+        </button>
+        <div className="flex items-center gap-2.5">
+          <div className="w-2 h-2 rounded-full bg-emerald-500 hidden sm:block" style={{ boxShadow: '0 0 0 3px rgba(16,185,129,.15)' }} />
+          <span className="text-sm font-semibold text-navy-900">{title}</span>
+        </div>
       </div>
       <Badge variant={user.role === 'ADMIN' ? 'red' : 'blue'}>
         {user.role === 'ADMIN' ? 'Administrator' : 'Staff'}

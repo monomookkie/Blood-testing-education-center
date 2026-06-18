@@ -12,18 +12,19 @@ const adminNav = [
 ];
 
 const userNav = [
-  { to: '/dashboard',   icon: 'home',  label: 'My Dashboard' },
-  { to: '/courses',     icon: 'book',  label: 'Course Catalogue' },
-  { to: '/certs',       icon: 'cert',  label: 'My Certificates' },
-  { to: '/report',      icon: 'chart', label: 'My Report' },
+  { to: '/dashboard', icon: 'home',  label: 'My Dashboard' },
+  { to: '/courses',   icon: 'book',  label: 'Course Catalogue' },
+  { to: '/certs',     icon: 'cert',  label: 'My Certificates' },
+  { to: '/report',    icon: 'chart', label: 'My Report' },
 ];
 
-export default function Sidebar({ user, onLogout }) {
+export default function Sidebar({ user, onLogout, onClose }) {
   const nav = user.role === 'ADMIN' ? adminNav : userNav;
+
   return (
-    <div className="w-56 flex-shrink-0 flex flex-col" style={{ background: 'linear-gradient(180deg,#0D1B2A,#1A3A5C)', minHeight: '100vh' }}>
+    <div className="w-56 h-full flex flex-col" style={{ background: 'linear-gradient(180deg,#0D1B2A,#1A3A5C)', minHeight: '100vh' }}>
       {/* Logo */}
-      <div className="px-4 py-5 border-b border-white/5">
+      <div className="px-4 py-5 border-b border-white/5 flex items-center justify-between">
         <div className="flex items-center gap-3">
           <div className="w-9 h-9 rounded-lg flex items-center justify-center font-mono font-bold text-white text-sm"
             style={{ background: 'rgba(26,86,219,.3)', border: '1.5px solid rgba(26,86,219,.5)' }}>HML</div>
@@ -32,6 +33,10 @@ export default function Sidebar({ user, onLogout }) {
             <div className="text-white/30 text-[10px] mt-0.5">Learning Platform v2.0</div>
           </div>
         </div>
+        {/* Close button — mobile only */}
+        <button onClick={onClose} className="lg:hidden text-white/40 hover:text-white p-1">
+          <Icon name="x" size={18} />
+        </button>
       </div>
 
       {/* Nav */}
@@ -40,7 +45,7 @@ export default function Sidebar({ user, onLogout }) {
           {user.role === 'ADMIN' ? 'Administration' : 'Staff Portal'}
         </div>
         {nav.map(n => (
-          <NavLink key={n.to} to={n.to}
+          <NavLink key={n.to} to={n.to} onClick={onClose}
             className={({ isActive }) =>
               `flex items-center gap-2.5 px-4 py-2.5 mx-2 rounded-lg text-sm transition-all mb-0.5 ${isActive
                 ? 'bg-brand-500/20 text-white font-medium'

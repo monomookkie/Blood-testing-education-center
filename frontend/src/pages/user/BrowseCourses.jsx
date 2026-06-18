@@ -41,7 +41,7 @@ export default function BrowseCourses({ user, showToast }) {
   if (loading) return <div className="flex items-center justify-center h-64 text-slate-400 text-sm">Loading…</div>;
 
   return (
-    <div className="p-7 page-enter">
+    <div className="p-4 md:p-7 page-enter">
       <div className="mb-6">
         <h2 className="text-xl font-semibold text-navy-900">Course Catalogue</h2>
         <p className="text-slate-400 text-sm mt-1">{courses.length} courses available</p>
@@ -53,16 +53,14 @@ export default function BrowseCourses({ user, showToast }) {
           className="w-full pl-10 pr-4 py-2.5 rounded-xl border border-slate-200 bg-white text-sm focus:outline-none focus:border-brand-500" />
       </div>
 
-      <div className="grid grid-cols-2 gap-4">
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         {filtered.map(c => {
           const enr = getEnrollment(c.id);
           return (
             <div key={c.id} className="bg-white rounded-2xl border border-slate-100 p-5 shadow-sm hover:shadow-md transition-shadow">
               <div className="flex items-start justify-between gap-3 mb-3">
                 <div className="flex-1 min-w-0">
-                  <div className="flex items-center gap-2 flex-wrap mb-1">
-                    <span className="text-sm font-semibold text-navy-900">{c.title}</span>
-                  </div>
+                  <p className="text-sm font-semibold text-navy-900 mb-1.5">{c.title}</p>
                   <Badge variant="blue" className="text-[10px]">{c.category}</Badge>
                 </div>
                 {enr && (
@@ -97,15 +95,14 @@ export default function BrowseCourses({ user, showToast }) {
             </div>
           );
         })}
-        {filtered.length === 0 && <div className="col-span-2 text-center py-12 text-slate-400 text-sm">No courses found.</div>}
+        {filtered.length === 0 && <div className="col-span-full text-center py-12 text-slate-400 text-sm">No courses found.</div>}
       </div>
 
-      {/* Course detail modal */}
       <Modal open={!!viewCourse} onClose={() => setViewCourse(null)} title={viewCourse?.title || ''} size="620px">
         {viewCourse && (
           <div>
             <p className="text-sm text-slate-600 mb-5">{viewCourse.description}</p>
-            <div className="flex gap-4 text-xs text-slate-400 mb-5">
+            <div className="flex flex-wrap gap-4 text-xs text-slate-400 mb-5">
               <span><strong className="text-slate-600">Category:</strong> {viewCourse.category}</span>
               <span><strong className="text-slate-600">Duration:</strong> {viewCourse.duration} min</span>
               <span><strong className="text-slate-600">Pass Score:</strong> {viewCourse.passScore}%</span>
@@ -121,10 +118,10 @@ export default function BrowseCourses({ user, showToast }) {
                     const meta = TYPE_META[m.type] || { label: 'FILE', color: 'gray' };
                     return (
                       <div key={m.id} className="flex items-center gap-3 p-3 bg-slate-50 rounded-xl">
-                        <Badge variant={meta.color} className="font-mono text-[10px]">{meta.label}</Badge>
-                        <span className="text-sm text-slate-700 flex-1">{m.title}</span>
+                        <Badge variant={meta.color} className="font-mono text-[10px] flex-shrink-0">{meta.label}</Badge>
+                        <span className="text-sm text-slate-700 flex-1 truncate">{m.title}</span>
                         {m.url && m.url !== '#' && (
-                          <a href={m.url} target="_blank" rel="noopener noreferrer" className="text-brand-500 hover:underline text-xs">Open →</a>
+                          <a href={m.url} target="_blank" rel="noopener noreferrer" className="text-brand-500 hover:underline text-xs flex-shrink-0">Open →</a>
                         )}
                       </div>
                     );
