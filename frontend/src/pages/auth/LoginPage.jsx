@@ -97,15 +97,9 @@ export default function LoginPage({ onLogin, onRegister }) {
 
   const Header = (
     <div className="px-10 py-8 text-center" style={{ background: 'linear-gradient(135deg,#0D1B2A,#1A3A5C)' }}>
-      <div className="w-14 h-14 rounded-2xl mx-auto mb-3.5 flex items-center justify-center font-mono font-bold text-white text-lg"
-        style={{ background: 'rgba(26,86,219,.3)', border: '2px solid rgba(26,86,219,.5)' }}>HML</div>
+      <img src="/logo.png" alt="Logo" className="w-14 h-14 mx-auto mb-3.5 object-contain" />
       <div className="text-white text-lg font-semibold">Blood Testing Education Center</div>
       <div className="text-white/40 text-xs mt-1">National Blood Center, Thai Red Cross Society</div>
-      <div className="mt-3 flex items-center justify-center gap-2 text-white/25 text-[10px] tracking-widest">
-        <div className="w-1.5 h-1.5 rounded-full bg-danger" />
-        ISO 15189 · AABB ACCREDITED
-        <div className="w-1.5 h-1.5 rounded-full bg-danger" />
-      </div>
     </div>
   );
   let body;
@@ -117,7 +111,7 @@ export default function LoginPage({ onLogin, onRegister }) {
           <div>
             <label className="block text-xs font-medium text-slate-500 mb-1.5">Email Address</label>
             <input type="email" value={email} onChange={e => setEmail(e.target.value)} onKeyDown={e => e.key === 'Enter' && handleLogin()}
-              placeholder="your@email.com" className={inputClass(false)} />
+              placeholder="your@redcross.or.th" className={inputClass(false)} />
           </div>
           <div>
             <label className="block text-xs font-medium text-slate-500 mb-1.5">Password</label>

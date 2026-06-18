@@ -28,5 +28,10 @@ export function useAuth() {
     return data.user;
   }, []);
 
-  return { user, login, logout, register };
+  const updateUser = useCallback((updated) => {
+    localStorage.setItem('hml_user', JSON.stringify(updated));
+    setUser(updated);
+  }, []);
+
+  return { user, login, logout, register, updateUser };
 }

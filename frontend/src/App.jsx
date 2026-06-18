@@ -20,8 +20,9 @@ import UserDashboard from './pages/user/UserDashboard';
 import BrowseCourses from './pages/user/BrowseCourses';
 import MyCertificates from './pages/user/MyCertificates';
 import MyReport from './pages/user/MyReport';
+import ProfilePage from './pages/ProfilePage';
 
-function AppLayout({ user, onLogout, showToast }) {
+function AppLayout({ user, onUpdateUser, onLogout, showToast }) {
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const pageProps = { user, showToast };
 
@@ -58,8 +59,12 @@ function AppLayout({ user, onLogout, showToast }) {
                 <Route path="/courses"   element={<BrowseCourses {...pageProps} />} />
                 <Route path="/certs"     element={<MyCertificates {...pageProps} />} />
                 <Route path="/report"    element={<MyReport {...pageProps} />} />
+                <Route path="/profile"   element={<ProfilePage {...pageProps} onUpdate={onUpdateUser} />} />
                 <Route path="*" element={<Navigate to="/dashboard" replace />} />
               </>
+            )}
+            {user.role === 'ADMIN' && (
+              <Route path="/profile" element={<ProfilePage {...pageProps} onUpdate={onUpdateUser} />} />
             )}
           </Routes>
         </div>
@@ -69,7 +74,7 @@ function AppLayout({ user, onLogout, showToast }) {
 }
 
 export default function App() {
-  const { user, login, logout, register } = useAuth();
+  const { user, login, logout, register, updateUser } = useAuth();
   const { toast, showToast, clearToast } = useToast();
   const navigate = useNavigate();
 
@@ -94,7 +99,7 @@ export default function App() {
 
   return (
     <>
-      <AppLayout user={user} onLogout={handleLogout} showToast={showToast} />
+      <AppLayout user={user} onUpdateUser={updateUser} onLogout={handleLogout} showToast={showToast} />
       {toast && <Toast key={toast.key} msg={toast.msg} type={toast.type} onClose={clearToast} />}
     </>
   );

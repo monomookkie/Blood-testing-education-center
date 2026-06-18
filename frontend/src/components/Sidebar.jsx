@@ -59,13 +59,16 @@ export default function Sidebar({ user, onLogout, onClose }) {
 
       {/* User footer */}
       <div className="border-t border-white/5 p-3">
-        <div className="flex items-center gap-2.5 p-2 rounded-lg mb-2" style={{ background: 'rgba(255,255,255,.05)' }}>
+        <NavLink to="/profile" onClick={onClose}
+          className={({ isActive }) =>
+            `flex items-center gap-2.5 p-2 rounded-lg mb-2 transition-all ${isActive ? 'bg-brand-500/20' : 'hover:bg-white/5'}`
+          }>
           <Avatar initials={user.avatar} size={32} />
           <div className="flex-1 min-w-0">
             <div className="text-white text-xs font-medium truncate">{user.name}</div>
             <div className="text-white/30 text-[10px] capitalize">{user.role === 'ADMIN' ? 'Administrator' : 'Staff'}</div>
           </div>
-        </div>
+        </NavLink>
         <button onClick={onLogout}
           className="w-full flex items-center justify-center gap-2 py-2 rounded-lg text-xs text-white/45 hover:text-white/80 hover:bg-white/10 transition-all">
           <Icon name="logout" size={14} /> Sign Out
