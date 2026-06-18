@@ -24,7 +24,7 @@ export default function Sidebar({ user, onLogout, onClose }) {
   return (
     <div className="w-56 h-full flex flex-col" style={{ background: 'linear-gradient(180deg,#0D1B2A,#1A3A5C)', minHeight: '100vh' }}>
       {/* Logo */}
-      <div className="px-4 py-5 border-b border-white/5 flex items-center justify-between">
+      <div className="px-4 py-5 border-b border-white/5 flex items-center justify-between" style={{ paddingTop: 'calc(1.25rem + env(safe-area-inset-top))' }}>
         <div className="flex items-center gap-3">
           <img src="/logo.png" alt="Logo" className="w-9 h-9 object-contain" />
           <div>
