@@ -1,0 +1,154 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mysql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id           String       @id @default(cuid())
+  name         String
+  email        String       @unique
+  password     String
+  role         Role         @default(USER)
+  dept         String       @default("Staff")
+  avatar       String
+  createdAt    DateTime     @default(now())
+  updatedAt    DateTime     @updatedAt
+
+  enrollments  Enrollment[]
+  certificates Certificate[]
+  trainingAttendances TrainingAttendee[]
+}
+
+model Course {
+  id          String     @id @default(cuid())
+  title       String
+  category    String
+  description String     @db.Text
+  status      CourseStatus @default(DRAFT)
+  duration    Int
+  passScore   Int        @default(80)
+  tags        String     @default("[]") @db.Text
+  createdAt   DateTime   @default(now())
+  updatedAt   DateTime   @updatedAt
+
+  materials   Material[]
+  enrollments Enrollment[]
+  certificates Certificate[]
+}
+
+model Material {
+  id       String  @id @default(cuid())
+  courseId String
+  type     String
+  title    String
+  url      String? @db.Text
+  dataUrl  String? @db.LongText
+
+  course   Course  @relation(fields: [courseId], references: [id], onDelete: Cascade)
+}
+
+model Enrollment {
+  id          String    @id @default(cuid())
+  userId      String
+  courseId    String
+  progress    Int       @default(0)
+  score       Int?
+  completed   Boolean   @default(false)
+  startedAt   DateTime  @default(now())
+  completedAt DateTime?
+
+  user        User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  course      Course    @relation(fields: [courseId], references: [id], onDelete: Cascade)
+  certificate Certificate?
+
+  @@unique([userId, courseId])
+}
+
+model Certificate {
+  id           String   @id @default(cuid())
+  enrollmentId String   @unique
+  userId       String
+  courseId     String
+  issuedAt     DateTime @default(now())
+  certNumber   String   @unique
+  score        Int
+
+  enrollment   Enrollment @relation(fields: [enrollmentId], references: [id], onDelete: Cascade)
+  user         User       @relation(fields: [userId], references: [id], onDelete: Cascade)
+  course       Course     @relation(fields: [courseId], references: [id], onDelete: Cascade)
+}
+
+model TrainingLog {
+  id        String   @id @default(cuid())
+  title     String
+  date      DateTime
+  trainer   String
+  location  String
+  duration  Int
+  type      String
+  topics    String   @db.Text
+  doc       String?
+  createdAt DateTime @default(now())
+
+  attendees TrainingAttendee[]
+}
+
+model TrainingAttendee {
+  trainingId String
+  userId     String
+
+  training   TrainingLog @relation(fields: [trainingId], references: [id], onDelete: Cascade)
+  user       User        @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@id([trainingId, userId])
+}
+
+model Announcement {
+  id       String   @id @default(cuid())
+  title    String
+  content  String   @db.Text
+  type     String   @default("info")
+  date     DateTime @default(now())
+  fileName String?
+  fileData String?  @db.LongText
+}
+
+model CertTemplate {
+  id            String  @id @default(cuid())
+  name          String
+  orgName       String
+  orgSubtitle   String
+  signatory     String
+  signatoryTitle String
+  footerText    String  @db.Text
+  primaryColor  String  @default("#1A56DB")
+  accentColor   String  @default("#C0392B")
+  logoText      String  @default("HML")
+  bgImage       String? @db.LongText
+  isDefault     Boolean @default(false)
+}
+
+model ExternalCert {
+  id         String   @id @default(cuid())
+  userId     String
+  title      String
+  issuer     String
+  issuedAt   DateTime
+  expiresAt  DateTime?
+  fileData   String?  @db.LongText
+  createdAt  DateTime @default(now())
+}
+
+enum Role {
+  ADMIN
+  USER
+}
+
+enum CourseStatus {
+  DRAFT
+  PUBLISHED
+}

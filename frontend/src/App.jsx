@@ -1,0 +1,88 @@
+import { Routes, Route, Navigate, useNavigate } from 'react-router-dom';
+import { useAuth } from './hooks/useAuth';
+import { useToast } from './hooks/useToast';
+import LoginPage from './pages/auth/LoginPage';
+import Sidebar from './components/Sidebar';
+import TopBar from './components/TopBar';
+import Toast from './components/ui/Toast';
+
+// Admin pages
+import AdminDashboard from './pages/admin/AdminDashboard';
+import CourseManagement from './pages/admin/CourseManagement';
+import TrainingLogger from './pages/admin/TrainingLogger';
+import CertificateEngine from './pages/admin/CertificateEngine';
+import UsersPage from './pages/admin/UsersPage';
+import Reports from './pages/admin/Reports';
+
+// User pages
+import UserDashboard from './pages/user/UserDashboard';
+import BrowseCourses from './pages/user/BrowseCourses';
+import MyCertificates from './pages/user/MyCertificates';
+import MyReport from './pages/user/MyReport';
+
+function AppLayout({ user, onLogout, showToast }) {
+  const pageProps = { user, showToast };
+  return (
+    <div className="flex min-h-screen bg-slate-50">
+      <Sidebar user={user} onLogout={onLogout} />
+      <div className="flex-1 flex flex-col min-w-0">
+        <TopBar user={user} />
+        <div className="flex-1 overflow-auto">
+          <Routes>
+            {user.role === 'ADMIN' ? (
+              <>
+                <Route path="/admin/dashboard"    element={<AdminDashboard {...pageProps} />} />
+                <Route path="/admin/courses"      element={<CourseManagement {...pageProps} />} />
+                <Route path="/admin/training"     element={<TrainingLogger {...pageProps} />} />
+                <Route path="/admin/certificates" element={<CertificateEngine {...pageProps} />} />
+                <Route path="/admin/users"        element={<UsersPage {...pageProps} />} />
+                <Route path="/admin/reports"      element={<Reports {...pageProps} />} />
+                <Route path="*" element={<Navigate to="/admin/dashboard" replace />} />
+              </>
+            ) : (
+              <>
+                <Route path="/dashboard" element={<UserDashboard {...pageProps} />} />
+                <Route path="/courses"   element={<BrowseCourses {...pageProps} />} />
+                <Route path="/certs"     element={<MyCertificates {...pageProps} />} />
+                <Route path="/report"   element={<MyReport {...pageProps} />} />
+                <Route path="*" element={<Navigate to="/dashboard" replace />} />
+              </>
+            )}
+          </Routes>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+export default function App() {
+  const { user, login, logout, register } = useAuth();
+  const { toast, showToast, clearToast } = useToast();
+  const navigate = useNavigate();
+
+  const handleLogin = async (email, password) => {
+    const u = await login(email, password);
+    navigate(u.role === 'ADMIN' ? '/admin/dashboard' : '/dashboard');
+    return u;
+  };
+
+  const handleRegister = async (body) => {
+    const u = await register(body);
+    navigate('/dashboard');
+    return u;
+  };
+
+  const handleLogout = () => {
+    logout();
+    navigate('/');
+  };
+
+  if (!user) return <LoginPage onLogin={handleLogin} onRegister={handleRegister} />;
+
+  return (
+    <>
+      <AppLayout user={user} onLogout={handleLogout} showToast={showToast} />
+      {toast && <Toast key={toast.key} msg={toast.msg} type={toast.type} onClose={clearToast} />}
+    </>
+  );
+}
