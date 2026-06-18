@@ -38,7 +38,7 @@ router.post('/register', async (req, res) => {
   const avatar = name.trim().split(/\s+/).map(x => x[0]).join('').slice(0, 2).toUpperCase();
   const hashed = await bcrypt.hash(password, 10);
   const user = await prisma.user.create({
-    data: { name: name.trim(), email: email.toLowerCase(), password: hashed, role: 'USER', dept: dept?.trim() || 'Staff', avatar }
+    data: { name: name.trim(), email: email.toLowerCase(), password: hashed, role: 'USER', dept: dept?.trim() || 'User', avatar }
   });
   res.status(201).json({ token: makeToken(user), user: safeUser(user) });
 });
