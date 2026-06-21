@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { api } from '../../api';
 import Icon from '../../components/ui/Icon';
 import Badge from '../../components/ui/Badge';
@@ -22,6 +22,49 @@ export default function BrowseCourses({ user, showToast }) {
   const [quizAnswers, setQuizAnswers] = useState({});
   const [quizResult, setQuizResult] = useState(null);
 
+  // Material confirm state: { [materialId]: countdown (seconds left) | 0 = ready | null = not opened }
+  const [matCountdown, setMatCountdown] = useState({});
+  const countdownRefs = useRef({});
+
+  const CONFIRM_SECONDS = 30;
+  const [expandedMat, setExpandedMat] = useState(null);
+
+  const getYouTubeEmbedUrl = (url) => {
+    try {
+      const u = new URL(url);
+      let videoId = null;
+      if (u.hostname.includes('youtube.com')) videoId = u.searchParams.get('v');
+      else if (u.hostname === 'youtu.be') videoId = u.pathname.slice(1);
+      if (videoId) return `https://www.youtube.com/embed/${videoId}?autoplay=1`;
+    } catch (_) {}
+    return null;
+  };
+
+  const startCountdown = (materialId) => {
+    if (matCountdown[materialId] !== undefined) return; // already opened
+    setMatCountdown(s => ({ ...s, [materialId]: CONFIRM_SECONDS }));
+    const interval = setInterval(() => {
+      setMatCountdown(s => {
+        const cur = s[materialId];
+        if (cur <= 1) {
+          clearInterval(interval);
+          return { ...s, [materialId]: 0 };
+        }
+        return { ...s, [materialId]: cur - 1 };
+      });
+    }, 1000);
+    countdownRefs.current[materialId] = interval;
+  };
+
+  // Clear timers on modal close
+  const closeCourse = () => {
+    Object.values(countdownRefs.current).forEach(clearInterval);
+    countdownRefs.current = {};
+    setMatCountdown({});
+    setExpandedMat(null);
+    setViewCourse(null);
+  };
+
   useEffect(() => {
     Promise.all([api.getCourses(), api.getEnrollments()])
       .then(([c, e]) => {
@@ -34,17 +77,25 @@ export default function BrowseCourses({ user, showToast }) {
 
   const getEnrollment = (courseId) => enrollments.find(e => e.courseId === courseId);
 
-  const handleOpenMaterial = async (m, enr) => {
-    if (m.url && m.url !== '#') window.open(m.url, '_blank');
-    if (!enr) return;
-    const done = JSON.parse(enr.completedMaterials || '[]');
-    if (done.includes(m.id)) return;
+  const handleOpenMaterial = (m) => {
+    const embedUrl = getYouTubeEmbedUrl(m.url);
+    if (embedUrl) {
+      setExpandedMat(m.id);
+    } else if (m.url && m.url !== '#') {
+      window.open(m.url, '_blank');
+    }
+    startCountdown(m.id);
+  };
+
+  const handleConfirmMaterial = async (m, enr) => {
+    if (!enr || matCountdown[m.id] !== 0) return;
     try {
       const result = await api.markMaterialDone(enr.id, m.id);
       setEnrollments(es => es.map(e => e.id === enr.id
         ? { ...e, completedMaterials: JSON.stringify(result.completedMaterials), progress: result.progress, completed: result.completed ?? e.completed }
         : e
       ));
+      showToast('บันทึกเรียบร้อย');
     } catch (_) {}
   };
 
@@ -157,7 +208,7 @@ export default function BrowseCourses({ user, showToast }) {
       </div>
 
       {/* Course Detail / Quiz Modal */}
-      <Modal open={!!viewCourse} onClose={() => setViewCourse(null)} title={quizMode ? `Post-Test: ${viewCourse?.title}` : (viewCourse?.title || '')} size="640px">
+      <Modal open={!!viewCourse} onClose={closeCourse} title={quizMode ? `Post-Test: ${viewCourse?.title}` : (viewCourse?.title || '')} size="640px">
         {viewCourse && !quizMode && (
           <div>
             <p className="text-sm text-slate-600 mb-5">{viewCourse.description}</p>
@@ -182,22 +233,51 @@ export default function BrowseCourses({ user, showToast }) {
                       const meta = TYPE_META[m.type] || { label: 'FILE', color: 'gray' };
                       const isDone = doneMaterials.includes(m.id);
                       return (
-                        <div key={m.id} className={`flex items-center gap-3 p-3 rounded-xl border transition-colors ${isDone ? 'bg-emerald-50 border-emerald-100' : 'bg-slate-50 border-transparent'}`}>
-                          <div className={`w-5 h-5 rounded-full flex items-center justify-center flex-shrink-0 text-[11px] font-bold ${isDone ? 'bg-emerald-500 text-white' : 'bg-slate-200 text-slate-400'}`}>
-                            {isDone ? '✓' : '✕'}
+                        <div key={m.id} className={`flex flex-col gap-2 p-3 rounded-xl border transition-colors ${isDone ? 'bg-emerald-50 border-emerald-100' : 'bg-slate-50 border-transparent'}`}>
+                          <div className="flex items-center gap-3">
+                            <div className={`w-5 h-5 rounded-full flex items-center justify-center flex-shrink-0 text-[11px] font-bold ${isDone ? 'bg-emerald-500 text-white' : 'bg-slate-200 text-slate-400'}`}>
+                              {isDone ? '✓' : '✕'}
+                            </div>
+                            <Badge variant={meta.color} className="font-mono text-[10px] flex-shrink-0">{meta.label}</Badge>
+                            <span className={`text-sm flex-1 truncate ${isDone ? 'text-emerald-700 font-medium' : 'text-slate-700'}`}>{m.title}</span>
+                            {Number(m.weight) > 0 && (
+                              <span className="text-[10px] font-semibold text-brand-500 bg-brand-50 px-2 py-0.5 rounded-full flex-shrink-0">
+                                +{m.weight}%
+                              </span>
+                            )}
+                            {m.url && m.url !== '#' && !isDone && (
+                              <button onClick={() => handleOpenMaterial(m)}
+                                className="text-xs flex-shrink-0 text-brand-500 hover:text-brand-700 transition-colors">
+                                Open →
+                              </button>
+                            )}
                           </div>
-                          <Badge variant={meta.color} className="font-mono text-[10px] flex-shrink-0">{meta.label}</Badge>
-                          <span className={`text-sm flex-1 truncate ${isDone ? 'text-emerald-700 font-medium' : 'text-slate-700'}`}>{m.title}</span>
-                          {Number(m.weight) > 0 && (
-                            <span className="text-[10px] font-semibold text-brand-500 bg-brand-50 px-2 py-0.5 rounded-full flex-shrink-0">
-                              +{m.weight}%
-                            </span>
+                          {/* YouTube embed */}
+                          {!isDone && expandedMat === m.id && getYouTubeEmbedUrl(m.url) && (
+                            <div className="rounded-xl overflow-hidden border border-slate-200 aspect-video w-full">
+                              <iframe
+                                src={getYouTubeEmbedUrl(m.url)}
+                                className="w-full h-full"
+                                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                                allowFullScreen
+                              />
+                            </div>
                           )}
-                          {m.url && m.url !== '#' && (
-                            <button onClick={() => handleOpenMaterial(m, enr)}
-                              className={`text-xs flex-shrink-0 transition-colors ${isDone ? 'text-emerald-600 hover:text-emerald-700' : 'text-brand-500 hover:text-brand-700'}`}>
-                              Open →
-                            </button>
+                          {/* Confirm row — shows after opening, hides when done */}
+                          {!isDone && matCountdown[m.id] !== undefined && (
+                            <div className="flex items-center gap-2 pl-8">
+                              {matCountdown[m.id] > 0 ? (
+                                <span className="text-[11px] text-slate-400">
+                                  ยืนยันได้ในอีก <span className="font-semibold text-amber-500">{matCountdown[m.id]}s</span>
+                                </span>
+                              ) : (
+                                <button
+                                  onClick={() => handleConfirmMaterial(m, enr)}
+                                  className="text-[11px] px-3 py-1 rounded-lg bg-emerald-500 text-white hover:bg-emerald-600 font-medium transition-colors">
+                                  ✓ ยืนยันว่าศึกษาแล้ว
+                                </button>
+                              )}
+                            </div>
                           )}
                         </div>
                       );
