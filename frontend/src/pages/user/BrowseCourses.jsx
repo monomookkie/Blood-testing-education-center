@@ -30,7 +30,8 @@ export default function BrowseCourses({ user, showToast }) {
   const [expandedMat, setExpandedMat] = useState(null);
 
   const [ytPlaying, setYtPlaying] = useState({});
-  const [ytMuted, setYtMuted] = useState({});
+  const [ytVolume, setYtVolume] = useState({});
+  const [ytEnded, setYtEnded] = useState({});
   const ytRefs = useRef({});
   const ytContainerRefs = useRef({});
 
@@ -57,10 +58,10 @@ export default function BrowseCourses({ user, showToast }) {
     setYtPlaying(s => ({ ...s, [materialId]: !playing }));
   };
 
-  const toggleYtMute = (materialId) => {
-    const muted = ytMuted[materialId];
-    ytCommand(materialId, muted ? 'unMute' : 'mute');
-    setYtMuted(s => ({ ...s, [materialId]: !muted }));
+  const changeYtVolume = (materialId, value) => {
+    ytCommand(materialId, 'unMute');
+    ytCommand(materialId, 'setVolume', [value]);
+    setYtVolume(s => ({ ...s, [materialId]: value }));
   };
 
   const toggleYtFullscreen = (materialId) => {
@@ -69,6 +70,28 @@ export default function BrowseCourses({ user, showToast }) {
     if (document.fullscreenElement) document.exitFullscreen();
     else el.requestFullscreen();
   };
+
+  // Listen for YouTube video ended event (state = 0)
+  useEffect(() => {
+    const handler = (e) => {
+      try {
+        const data = JSON.parse(e.data);
+        if (data.event !== 'infoDelivery' || data.info?.playerState === undefined) return;
+        const state = data.info.playerState;
+        // Find which material this iframe belongs to
+        const matId = Object.keys(ytRefs.current).find(id => ytRefs.current[id]?.contentWindow === e.source);
+        if (!matId) return;
+        if (state === 1) setYtPlaying(s => ({ ...s, [matId]: true }));
+        if (state === 2) setYtPlaying(s => ({ ...s, [matId]: false }));
+        if (state === 0) {
+          setYtPlaying(s => ({ ...s, [matId]: false }));
+          setYtEnded(s => ({ ...s, [matId]: true }));
+        }
+      } catch (_) {}
+    };
+    window.addEventListener('message', handler);
+    return () => window.removeEventListener('message', handler);
+  }, []);
 
   const startCountdown = (materialId) => {
     if (matCountdown[materialId] !== undefined) return; // already opened
@@ -93,7 +116,8 @@ export default function BrowseCourses({ user, showToast }) {
     setMatCountdown({});
     setExpandedMat(null);
     setYtPlaying({});
-    setYtMuted({});
+    setYtVolume({});
+    setYtEnded({});
     ytRefs.current = {};
     ytContainerRefs.current = {};
     setViewCourse(null);
@@ -113,20 +137,21 @@ export default function BrowseCourses({ user, showToast }) {
 
   const handleOpenMaterial = (m, isDone) => {
     if (m.dataUrl) {
-      // Uploaded file — open as blob in new tab
       fetch(m.dataUrl).then(r => r.blob()).then(blob => {
         const url = URL.createObjectURL(blob);
         window.open(url, '_blank');
       });
+      if (!isDone) startCountdown(m.id);
     } else {
       const embedUrl = getYouTubeEmbedUrl(m.url);
       if (embedUrl) {
         setExpandedMat(prev => prev === m.id ? null : m.id);
+        // YouTube: no countdown — wait for video to end instead
       } else if (m.url && m.url !== '#') {
         window.open(m.url, '_blank');
+        if (!isDone) startCountdown(m.id);
       }
     }
-    if (!isDone) startCountdown(m.id);
   };
 
   const handleConfirmMaterial = async (m, enr) => {
@@ -311,10 +336,15 @@ export default function BrowseCourses({ user, showToast }) {
                                   className="text-white hover:text-white/80 transition-colors text-base w-6 text-center">
                                   {ytPlaying[m.id] ? '⏸' : '▶'}
                                 </button>
-                                <button onClick={() => toggleYtMute(m.id)}
-                                  className="text-white hover:text-white/80 transition-colors text-base w-6 text-center">
-                                  {ytMuted[m.id] ? '🔇' : '🔊'}
-                                </button>
+                                <span className="text-white text-sm">
+                                  {(ytVolume[m.id] ?? 100) === 0 ? '🔇' : '🔊'}
+                                </span>
+                                <input
+                                  type="range" min="0" max="100"
+                                  value={ytVolume[m.id] ?? 100}
+                                  onChange={e => changeYtVolume(m.id, Number(e.target.value))}
+                                  className="w-20 accent-white cursor-pointer"
+                                />
                                 <div className="flex-1" />
                                 <button onClick={() => toggleYtFullscreen(m.id)}
                                   className="text-white hover:text-white/80 transition-colors text-sm">
@@ -323,22 +353,41 @@ export default function BrowseCourses({ user, showToast }) {
                               </div>
                             </div>
                           )}
-                          {/* Confirm row — shows after opening, hides when done */}
-                          {!isDone && matCountdown[m.id] !== undefined && (
-                            <div className="flex items-center gap-2 pl-8">
-                              {matCountdown[m.id] > 0 ? (
-                                <span className="text-[11px] text-slate-400">
-                                  ยืนยันได้ในอีก <span className="font-semibold text-amber-500">{matCountdown[m.id]}s</span>
-                                </span>
+                          {/* Confirm row */}
+                          {!isDone && (() => {
+                            const isYoutube = !!getYouTubeEmbedUrl(m.url);
+                            if (isYoutube && expandedMat === m.id) {
+                              return ytEnded[m.id] ? (
+                                <div className="flex items-center gap-2 pl-8">
+                                  <button onClick={() => handleConfirmMaterial(m, enr)}
+                                    className="text-[11px] px-3 py-1 rounded-lg bg-emerald-500 text-white hover:bg-emerald-600 font-medium transition-colors">
+                                    ✓ ยืนยันว่าศึกษาแล้ว
+                                  </button>
+                                </div>
                               ) : (
-                                <button
-                                  onClick={() => handleConfirmMaterial(m, enr)}
-                                  className="text-[11px] px-3 py-1 rounded-lg bg-emerald-500 text-white hover:bg-emerald-600 font-medium transition-colors">
-                                  ✓ ยืนยันว่าศึกษาแล้ว
-                                </button>
-                              )}
-                            </div>
-                          )}
+                                <div className="flex items-center gap-2 pl-8">
+                                  <span className="text-[11px] text-slate-400">ดูวิดีโอจนจบเพื่อยืนยัน</span>
+                                </div>
+                              );
+                            }
+                            if (!isYoutube && matCountdown[m.id] !== undefined) {
+                              return (
+                                <div className="flex items-center gap-2 pl-8">
+                                  {matCountdown[m.id] > 0 ? (
+                                    <span className="text-[11px] text-slate-400">
+                                      ยืนยันได้ในอีก <span className="font-semibold text-amber-500">{matCountdown[m.id]}s</span>
+                                    </span>
+                                  ) : (
+                                    <button onClick={() => handleConfirmMaterial(m, enr)}
+                                      className="text-[11px] px-3 py-1 rounded-lg bg-emerald-500 text-white hover:bg-emerald-600 font-medium transition-colors">
+                                      ✓ ยืนยันว่าศึกษาแล้ว
+                                    </button>
+                                  )}
+                                </div>
+                              );
+                            }
+                            return null;
+                          })()}
                         </div>
                       );
                     })}
