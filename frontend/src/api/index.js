@@ -45,6 +45,7 @@ export const api = {
   enroll: (courseId) => req('POST', '/enrollments', { courseId }),
   updateEnrollment: (id, body) => req('PUT', `/enrollments/${id}`, body),
   adminEnroll: (userId, courseId) => req('POST', '/enrollments/admin', { userId, courseId }),
+  markMaterialDone: (enrollmentId, materialId) => req('POST', `/enrollments/${enrollmentId}/material/${materialId}`),
 
   // Certificates
   getCertificates: () => req('GET', '/certificates'),

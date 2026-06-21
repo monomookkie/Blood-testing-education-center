@@ -62,6 +62,36 @@ router.put('/:id', requireAuth, async (req, res) => {
   res.json(updated);
 });
 
+// POST /api/enrollments/:id/material/:materialId  (mark material as viewed)
+router.post('/:id/material/:materialId', requireAuth, async (req, res) => {
+  const enrollment = await prisma.enrollment.findUnique({
+    where: { id: req.params.id },
+    include: { course: { include: { materials: true } } }
+  });
+  if (!enrollment) return res.status(404).json({ error: 'Not found' });
+  if (enrollment.userId !== req.user.id) return res.status(403).json({ error: 'Forbidden' });
+
+  const completed = JSON.parse(enrollment.completedMaterials || '[]');
+  if (!completed.includes(req.params.materialId)) completed.push(req.params.materialId);
+
+  // Recalculate progress from weights
+  const materials = enrollment.course.materials;
+  const totalWeight = materials.reduce((s, m) => s + (m.weight || 0), 0);
+  let progress = enrollment.progress;
+  if (totalWeight > 0) {
+    const doneWeight = materials
+      .filter(m => completed.includes(m.id))
+      .reduce((s, m) => s + (m.weight || 0), 0);
+    progress = Math.min(100, Math.round((doneWeight / totalWeight) * 100));
+  }
+
+  const updated = await prisma.enrollment.update({
+    where: { id: req.params.id },
+    data: { completedMaterials: JSON.stringify(completed), progress }
+  });
+  res.json({ completedMaterials: completed, progress: updated.progress });
+});
+
 // Admin: enroll a user into a course
 router.post('/admin', requireAdmin, async (req, res) => {
   const { userId, courseId } = req.body;

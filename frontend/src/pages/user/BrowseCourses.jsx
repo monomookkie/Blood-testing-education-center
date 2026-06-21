@@ -30,6 +30,20 @@ export default function BrowseCourses({ user, showToast }) {
 
   const getEnrollment = (courseId) => enrollments.find(e => e.courseId === courseId);
 
+  const handleOpenMaterial = async (m, enr) => {
+    if (m.url && m.url !== '#') window.open(m.url, '_blank');
+    if (!enr) return;
+    const done = JSON.parse(enr.completedMaterials || '[]');
+    if (done.includes(m.id)) return;
+    try {
+      const result = await api.markMaterialDone(enr.id, m.id);
+      setEnrollments(es => es.map(e => e.id === enr.id
+        ? { ...e, completedMaterials: JSON.stringify(result.completedMaterials), progress: result.progress }
+        : e
+      ));
+    } catch (_) {}
+  };
+
   const filtered = courses.filter(c =>
     c.title.toLowerCase().includes(search.toLowerCase()) ||
     c.category.toLowerCase().includes(search.toLowerCase())
@@ -138,30 +152,46 @@ export default function BrowseCourses({ user, showToast }) {
             </div>
 
             {/* Materials */}
-            {viewCourse.materials?.length > 0 && (
-              <div className="mb-5">
-                <h4 className="text-xs font-semibold text-slate-500 uppercase tracking-wide mb-3">Materials</h4>
-                <div className="space-y-2">
-                  {viewCourse.materials.map(m => {
-                    const meta = TYPE_META[m.type] || { label: 'FILE', color: 'gray' };
-                    return (
-                      <div key={m.id} className="flex items-center gap-3 p-3 bg-slate-50 rounded-xl">
-                        <Badge variant={meta.color} className="font-mono text-[10px] flex-shrink-0">{meta.label}</Badge>
-                        <span className="text-sm text-slate-700 flex-1 truncate">{m.title}</span>
-                        {Number(m.weight) > 0 && (
-                          <span className="text-[10px] font-semibold text-brand-500 bg-brand-50 px-2 py-0.5 rounded-full flex-shrink-0">
-                            +{m.weight}%
-                          </span>
-                        )}
-                        {m.url && m.url !== '#' && (
-                          <a href={m.url} target="_blank" rel="noopener noreferrer" className="text-brand-500 hover:underline text-xs flex-shrink-0">Open →</a>
-                        )}
-                      </div>
-                    );
-                  })}
+            {viewCourse.materials?.length > 0 && (() => {
+              const enr = getEnrollment(viewCourse.id);
+              const doneMaterials = JSON.parse(enr?.completedMaterials || '[]');
+              return (
+                <div className="mb-5">
+                  <div className="flex items-center justify-between mb-3">
+                    <h4 className="text-xs font-semibold text-slate-500 uppercase tracking-wide">Materials</h4>
+                    <span className="text-[10px] text-slate-400">
+                      {doneMaterials.length}/{viewCourse.materials.length} เสร็จแล้ว
+                    </span>
+                  </div>
+                  <div className="space-y-2">
+                    {viewCourse.materials.map(m => {
+                      const meta = TYPE_META[m.type] || { label: 'FILE', color: 'gray' };
+                      const isDone = doneMaterials.includes(m.id);
+                      return (
+                        <div key={m.id} className={`flex items-center gap-3 p-3 rounded-xl border transition-colors ${isDone ? 'bg-emerald-50 border-emerald-100' : 'bg-slate-50 border-transparent'}`}>
+                          <div className={`w-5 h-5 rounded-full flex items-center justify-center flex-shrink-0 text-[11px] font-bold ${isDone ? 'bg-emerald-500 text-white' : 'bg-slate-200 text-slate-400'}`}>
+                            {isDone ? '✓' : '✕'}
+                          </div>
+                          <Badge variant={meta.color} className="font-mono text-[10px] flex-shrink-0">{meta.label}</Badge>
+                          <span className={`text-sm flex-1 truncate ${isDone ? 'text-emerald-700 font-medium' : 'text-slate-700'}`}>{m.title}</span>
+                          {Number(m.weight) > 0 && (
+                            <span className="text-[10px] font-semibold text-brand-500 bg-brand-50 px-2 py-0.5 rounded-full flex-shrink-0">
+                              +{m.weight}%
+                            </span>
+                          )}
+                          {m.url && m.url !== '#' && (
+                            <button onClick={() => handleOpenMaterial(m, enr)}
+                              className={`text-xs flex-shrink-0 transition-colors ${isDone ? 'text-emerald-600 hover:text-emerald-700' : 'text-brand-500 hover:text-brand-700'}`}>
+                              Open →
+                            </button>
+                          )}
+                        </div>
+                      );
+                    })}
+                  </div>
                 </div>
-              </div>
-            )}
+              );
+            })()}
 
             {/* Quiz info */}
             {(viewCourse.questions || []).length > 0 && (

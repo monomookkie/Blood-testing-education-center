@@ -58,9 +58,10 @@ model Enrollment {
   id          String    @id @default(cuid())
   userId      String
   courseId    String
-  progress    Int       @default(0)
-  score       Int?
-  completed   Boolean   @default(false)
+  progress           Int       @default(0)
+  completedMaterials String?   @db.Text
+  score              Int?
+  completed          Boolean   @default(false)
   startedAt   DateTime  @default(now())
   completedAt DateTime?
 
