@@ -129,7 +129,10 @@ export default function UserDashboard({ user, showToast }) {
       .then(([e, a]) => {
         setEnrollments(e);
         setAnnouncements(a);
-        if (a.length > 0) setPopupAnn(a[0]);
+        if (a.length > 0 && !sessionStorage.getItem('ann_popup_shown')) {
+          setPopupAnn(a[0]);
+          sessionStorage.setItem('ann_popup_shown', '1');
+        }
       })
       .finally(() => setLoading(false));
   }, []);
@@ -150,8 +153,7 @@ export default function UserDashboard({ user, showToast }) {
         <div className="fixed inset-0 z-50 flex items-center justify-center"
           style={{ background: 'rgba(15,23,42,0.7)', backdropFilter: 'blur(8px)', padding: '24px' }}
           onClick={closePopup}>
-          <div className="rounded-2xl overflow-hidden shadow-2xl"
-            style={{ width: '100%', maxWidth: 720 }}
+          <div className="w-full rounded-2xl overflow-hidden shadow-2xl"
             onClick={e => e.stopPropagation()}>
 
             {popupAnn.fileData && popupAnn.fileData.startsWith('data:image') ? (
