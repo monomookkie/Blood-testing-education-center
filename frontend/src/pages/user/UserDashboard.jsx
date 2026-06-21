@@ -129,21 +129,12 @@ export default function UserDashboard({ user, showToast }) {
       .then(([e, a]) => {
         setEnrollments(e);
         setAnnouncements(a);
-        if (a.length > 0) {
-          const latest = a[0];
-          const seenKey = `ann_seen_${latest.id}`;
-          if (!localStorage.getItem(seenKey)) {
-            setPopupAnn(latest);
-          }
-        }
+        if (a.length > 0) setPopupAnn(a[0]);
       })
       .finally(() => setLoading(false));
   }, []);
 
-  const closePopup = () => {
-    if (popupAnn) localStorage.setItem(`ann_seen_${popupAnn.id}`, '1');
-    setPopupAnn(null);
-  };
+  const closePopup = () => setPopupAnn(null);
 
   if (loading) return <div className="flex items-center justify-center h-64 text-slate-400 text-sm">Loading…</div>;
 
@@ -156,14 +147,14 @@ export default function UserDashboard({ user, showToast }) {
 
       {/* Announcement Popup */}
       {popupAnn && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center"
-          style={{ background: 'rgba(15,23,42,0.65)', backdropFilter: 'blur(6px)', padding: '16px' }}
+        <div className="fixed inset-0 z-50 flex items-end sm:items-center justify-center p-0 sm:p-4"
+          style={{ background: 'rgba(15,23,42,0.65)', backdropFilter: 'blur(6px)' }}
           onClick={closePopup}>
-          <div style={{ width: '100%', maxWidth: 560, borderRadius: 24, overflow: 'hidden', boxShadow: '0 25px 60px rgba(0,0,0,0.35)' }}
+          <div className="w-full sm:max-w-2xl rounded-t-3xl sm:rounded-3xl overflow-hidden shadow-2xl"
             onClick={e => e.stopPropagation()}>
 
             {popupAnn.fileData && popupAnn.fileData.startsWith('data:image') ? (
-              <div className="relative w-full aspect-[8/5] overflow-hidden">
+              <div className="relative w-full aspect-[16/9] overflow-hidden">
                 <img src={popupAnn.fileData} alt={popupAnn.title}
                   className="absolute inset-0 w-full h-full object-cover" />
                 <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/30 to-black/10" />
@@ -171,12 +162,12 @@ export default function UserDashboard({ user, showToast }) {
                   className="absolute top-3 right-3 w-8 h-8 rounded-full bg-black/40 hover:bg-black/60 text-white text-xl flex items-center justify-center transition-colors border-0">
                   ×
                 </button>
-                <div className="absolute bottom-0 left-0 right-0 p-6">
-                  <span className={`inline-block text-[11px] font-bold px-2.5 py-0.5 rounded-full mb-2.5 border border-white/30 ${popupAnn.type === 'important' ? 'bg-red-500 text-white' : 'bg-white/20 text-white'}`}>
+                <div className="absolute bottom-0 left-0 right-0 p-5 sm:p-8">
+                  <span className={`inline-block text-[11px] font-bold px-3 py-1 rounded-full mb-3 border border-white/30 ${popupAnn.type === 'important' ? 'bg-red-500 text-white' : 'bg-white/20 text-white'}`}>
                     {popupAnn.type === 'important' ? 'สำคัญ' : 'ประกาศ'}
                   </span>
-                  <p className="text-white font-bold text-lg leading-snug mb-1.5">{popupAnn.title}</p>
-                  <p className="text-white/80 text-sm leading-relaxed">{popupAnn.content}</p>
+                  <p className="text-white font-bold text-xl sm:text-2xl leading-snug mb-2">{popupAnn.title}</p>
+                  <p className="text-white/80 text-sm sm:text-base leading-relaxed line-clamp-3">{popupAnn.content}</p>
                   {popupAnn.link && (
                     <a href={popupAnn.link} target="_blank" rel="noopener noreferrer" onClick={closePopup}
                       className="inline-block mt-3 px-5 py-2 rounded-xl bg-white text-slate-800 text-sm font-semibold hover:bg-slate-100 transition-colors no-underline">
@@ -186,16 +177,16 @@ export default function UserDashboard({ user, showToast }) {
                 </div>
               </div>
             ) : (
-              <div className={`relative p-8 ${popupAnn.type === 'important' ? 'bg-gradient-to-br from-red-500 to-rose-600' : 'bg-gradient-to-br from-brand-500 to-indigo-600'}`}>
+              <div className={`relative p-8 sm:p-12 ${popupAnn.type === 'important' ? 'bg-gradient-to-br from-red-500 to-rose-600' : 'bg-gradient-to-br from-brand-500 to-indigo-600'}`}>
                 <button onClick={closePopup}
-                  className="absolute top-3 right-3 w-8 h-8 rounded-full bg-white/20 hover:bg-white/30 text-white text-xl flex items-center justify-center transition-colors border-0">
+                  className="absolute top-4 right-4 w-9 h-9 rounded-full bg-white/20 hover:bg-white/30 text-white text-xl flex items-center justify-center transition-colors border-0">
                   ×
                 </button>
-                <span className="inline-block text-[11px] font-bold px-2.5 py-0.5 rounded-full bg-white/20 text-white border border-white/30 mb-4">
+                <span className="inline-block text-[11px] font-bold px-3 py-1 rounded-full bg-white/20 text-white border border-white/30 mb-5">
                   {popupAnn.type === 'important' ? 'สำคัญ' : 'ประกาศ'}
                 </span>
-                <p className="text-white font-bold text-xl leading-snug mb-2">{popupAnn.title}</p>
-                <p className="text-white/80 text-sm leading-relaxed whitespace-pre-wrap">{popupAnn.content}</p>
+                <p className="text-white font-bold text-2xl sm:text-3xl leading-snug mb-3">{popupAnn.title}</p>
+                <p className="text-white/80 text-sm sm:text-base leading-relaxed whitespace-pre-wrap">{popupAnn.content}</p>
                 {popupAnn.link && (
                   <a href={popupAnn.link} target="_blank" rel="noopener noreferrer" onClick={closePopup}
                     className="inline-block mt-5 px-5 py-2 rounded-xl bg-white text-slate-800 text-sm font-semibold hover:bg-slate-100 transition-colors no-underline">

@@ -1,7 +1,7 @@
 const BASE = import.meta.env.VITE_API_URL || '/api';
 
 function getToken() {
-  return localStorage.getItem('hml_token');
+  return sessionStorage.getItem('hml_token');
 }
 
 async function req(method, path, body) {
