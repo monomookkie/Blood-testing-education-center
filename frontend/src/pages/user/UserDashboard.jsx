@@ -48,6 +48,32 @@ export default function UserDashboard({ user, showToast }) {
         ))}
       </div>
 
+      {/* Announcements — top center */}
+      {announcements.length > 0 && (
+        <div className="max-w-2xl mx-auto mb-5">
+          <h3 className="text-sm font-semibold text-navy-900 mb-3 text-center">ประกาศ / ข่าวสาร</h3>
+          <div className="space-y-4">
+            {announcements.slice(0, 5).map(a => (
+              <div key={a.id} className={`rounded-2xl border overflow-hidden shadow-sm ${a.type === 'important' ? 'border-red-100' : 'border-slate-100'}`}>
+                {a.fileData && a.fileData.startsWith('data:image') && (
+                  <img src={a.fileData} alt={a.title} className="w-full max-h-64 object-cover" />
+                )}
+                <div className={`p-4 ${a.type === 'important' ? 'bg-red-50' : 'bg-white'}`}>
+                  <div className="flex items-center gap-2 mb-1.5">
+                    <Badge variant={a.type === 'important' ? 'red' : 'blue'} className="text-[10px]">
+                      {a.type === 'important' ? 'สำคัญ' : 'ทั่วไป'}
+                    </Badge>
+                    <span className="text-[10px] text-slate-400">{new Date(a.date).toLocaleDateString('th-TH')}</span>
+                  </div>
+                  <p className="text-sm font-semibold text-slate-800 mb-1">{a.title}</p>
+                  <p className="text-xs text-slate-500 whitespace-pre-wrap">{a.content}</p>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
+
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-5">
         {/* My Courses */}
         <div className="bg-white rounded-2xl border border-slate-100 p-5 shadow-sm">
@@ -71,29 +97,9 @@ export default function UserDashboard({ user, showToast }) {
           </div>
         </div>
 
-        {/* Announcements */}
-        <div className="bg-white rounded-2xl border border-slate-100 p-5 shadow-sm">
-          <h3 className="text-sm font-semibold text-navy-900 mb-4">ประกาศ / ข่าวสาร</h3>
-          <div className="space-y-4">
-            {announcements.slice(0, 5).map(a => (
-              <div key={a.id} className={`rounded-xl border overflow-hidden ${a.type === 'important' ? 'border-red-100' : 'border-slate-100'}`}>
-                {a.fileData && a.fileData.startsWith('data:image') && (
-                  <img src={a.fileData} alt={a.title} className="w-full max-h-52 object-cover" />
-                )}
-                <div className={`p-3 ${a.type === 'important' ? 'bg-red-50' : 'bg-slate-50'}`}>
-                  <div className="flex items-center gap-2 mb-1.5">
-                    <Badge variant={a.type === 'important' ? 'red' : 'blue'} className="text-[10px]">
-                      {a.type === 'important' ? 'สำคัญ' : 'ทั่วไป'}
-                    </Badge>
-                    <span className="text-[10px] text-slate-400">{new Date(a.date).toLocaleDateString('th-TH')}</span>
-                  </div>
-                  <p className="text-xs font-semibold text-slate-800 mb-0.5">{a.title}</p>
-                  <p className="text-[11px] text-slate-500 whitespace-pre-wrap">{a.content}</p>
-                </div>
-              </div>
-            ))}
-            {announcements.length === 0 && <p className="text-xs text-slate-400">ยังไม่มีประกาศ</p>}
-          </div>
+        {/* Placeholder or extra info */}
+        <div className="bg-white rounded-2xl border border-slate-100 p-5 shadow-sm flex items-center justify-center">
+          <p className="text-xs text-slate-300">—</p>
         </div>
       </div>
     </div>
