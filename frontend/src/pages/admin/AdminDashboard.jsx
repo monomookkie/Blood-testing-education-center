@@ -3,16 +3,28 @@ import { api } from '../../api';
 import Icon from '../../components/ui/Icon';
 import Avatar from '../../components/ui/Avatar';
 import Badge from '../../components/ui/Badge';
+import Modal from '../../components/ui/Modal';
+import ConfirmDialog from '../../components/ui/ConfirmDialog';
+
+const EMPTY_ANN = { title: '', content: '', type: 'info', fileData: null, fileName: '' };
 
 export default function AdminDashboard({ showToast }) {
   const [summary, setSummary] = useState(null);
   const [enrollments, setEnrollments] = useState([]);
   const [courses, setCourses] = useState([]);
+  const [announcements, setAnnouncements] = useState([]);
   const [loading, setLoading] = useState(true);
 
+  // Announcement form state
+  const [showAnnModal, setShowAnnModal] = useState(false);
+  const [annForm, setAnnForm] = useState(EMPTY_ANN);
+  const [editAnnId, setEditAnnId] = useState(null);
+  const [confirmDelAnn, setConfirmDelAnn] = useState(null);
+  const [saving, setSaving] = useState(false);
+
   useEffect(() => {
-    Promise.all([api.getReportSummary(), api.getEnrollments(), api.getCourses()])
-      .then(([s, e, c]) => { setSummary(s); setEnrollments(e); setCourses(c); })
+    Promise.all([api.getReportSummary(), api.getEnrollments(), api.getCourses(), api.getAnnouncements()])
+      .then(([s, e, c, a]) => { setSummary(s); setEnrollments(e); setCourses(c); setAnnouncements(a); })
       .finally(() => setLoading(false));
   }, []);
 
@@ -27,6 +39,46 @@ export default function AdminDashboard({ showToast }) {
 
   const inProgress = enrollments.filter(e => !e.completed);
   const publishedCourses = courses.filter(c => c.status === 'PUBLISHED');
+
+  const openNewAnn = () => {
+    setAnnForm(EMPTY_ANN);
+    setEditAnnId(null);
+    setShowAnnModal(true);
+  };
+
+  const openEditAnn = (a) => {
+    setAnnForm({ title: a.title, content: a.content, type: a.type, fileData: a.fileData || null, fileName: a.fileName || '' });
+    setEditAnnId(a.id);
+    setShowAnnModal(true);
+  };
+
+  const handleSaveAnn = async () => {
+    if (!annForm.title.trim() || !annForm.content.trim()) {
+      showToast('กรุณากรอกหัวข้อและเนื้อหา', 'error');
+      return;
+    }
+    setSaving(true);
+    try {
+      if (editAnnId) {
+        const updated = await api.updateAnnouncement(editAnnId, annForm);
+        setAnnouncements(as => as.map(a => a.id === editAnnId ? updated : a));
+        showToast('อัปเดตประกาศแล้ว');
+      } else {
+        const created = await api.createAnnouncement(annForm);
+        setAnnouncements(as => [created, ...as]);
+        showToast('โพสต์ประกาศแล้ว');
+      }
+      setShowAnnModal(false);
+    } catch { showToast('เกิดข้อผิดพลาด', 'error'); }
+    finally { setSaving(false); }
+  };
+
+  const handleDeleteAnn = async () => {
+    await api.deleteAnnouncement(confirmDelAnn);
+    setAnnouncements(as => as.filter(a => a.id !== confirmDelAnn));
+    setConfirmDelAnn(null);
+    showToast('ลบประกาศแล้ว');
+  };
 
   return (
     <div className="p-4 md:p-7 page-enter">
@@ -50,8 +102,8 @@ export default function AdminDashboard({ showToast }) {
         ))}
       </div>
 
-      {/* Completion + In-progress */}
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-5">
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-5 mb-5">
+        {/* Completion rate */}
         <div className="bg-white rounded-2xl border border-slate-100 p-5 shadow-sm">
           <div className="flex items-center justify-between mb-5">
             <h3 className="text-sm font-semibold text-navy-900">Course Completion Rate</h3>
@@ -74,6 +126,7 @@ export default function AdminDashboard({ showToast }) {
           {publishedCourses.length === 0 && <p className="text-xs text-slate-400">No published courses yet.</p>}
         </div>
 
+        {/* In-progress enrollments */}
         <div className="bg-white rounded-2xl border border-slate-100 p-5 shadow-sm">
           <div className="flex items-center justify-between mb-5">
             <h3 className="text-sm font-semibold text-navy-900">In-Progress Enrollments</h3>
@@ -94,6 +147,126 @@ export default function AdminDashboard({ showToast }) {
           </div>
         </div>
       </div>
+
+      {/* Announcements management */}
+      <div className="bg-white rounded-2xl border border-slate-100 p-5 shadow-sm">
+        <div className="flex items-center justify-between mb-4">
+          <h3 className="text-sm font-semibold text-navy-900">ประกาศ / ข่าวสาร</h3>
+          <button onClick={openNewAnn}
+            className="flex items-center gap-1.5 px-3 py-1.5 bg-brand-500 text-white rounded-lg text-xs font-medium hover:bg-brand-600">
+            <Icon name="plus" size={13} /> โพสต์ประกาศ
+          </button>
+        </div>
+
+        {announcements.length === 0 && (
+          <p className="text-xs text-slate-400 text-center py-6">ยังไม่มีประกาศ</p>
+        )}
+
+        <div className="space-y-3">
+          {announcements.map(a => (
+            <div key={a.id} className={`flex gap-4 p-4 rounded-xl border ${a.type === 'important' ? 'border-red-100 bg-red-50' : 'border-slate-100 bg-slate-50'}`}>
+              {a.fileData && a.fileData.startsWith('data:image') && (
+                <img src={a.fileData} alt="" className="w-20 h-20 object-cover rounded-lg flex-shrink-0" />
+              )}
+              <div className="flex-1 min-w-0">
+                <div className="flex items-center gap-2 mb-1">
+                  <Badge variant={a.type === 'important' ? 'red' : 'blue'} className="text-[10px]">{a.type}</Badge>
+                  <span className="text-[10px] text-slate-400">{new Date(a.date).toLocaleDateString('th-TH')}</span>
+                </div>
+                <p className="text-sm font-medium text-slate-800 mb-0.5">{a.title}</p>
+                <p className="text-xs text-slate-500 line-clamp-2">{a.content}</p>
+              </div>
+              <div className="flex gap-1 flex-shrink-0">
+                <button onClick={() => openEditAnn(a)} className="p-1.5 rounded-lg hover:bg-slate-200 text-slate-400 hover:text-slate-600">
+                  <Icon name="edit" size={13} />
+                </button>
+                <button onClick={() => setConfirmDelAnn(a.id)} className="p-1.5 rounded-lg hover:bg-red-100 text-slate-400 hover:text-red-500">
+                  <Icon name="trash" size={13} />
+                </button>
+              </div>
+            </div>
+          ))}
+        </div>
+      </div>
+
+      {/* Announcement modal */}
+      <Modal open={showAnnModal} onClose={() => setShowAnnModal(false)}
+        title={editAnnId ? 'แก้ไขประกาศ' : 'โพสต์ประกาศใหม่'} size="560px">
+        <div className="space-y-3">
+          <div className="flex gap-2">
+            {['info', 'important'].map(t => (
+              <button key={t} type="button"
+                onClick={() => setAnnForm(f => ({ ...f, type: t }))}
+                className={`px-3 py-1.5 rounded-lg text-xs font-medium border transition-colors ${annForm.type === t
+                  ? t === 'important' ? 'bg-red-500 text-white border-red-500' : 'bg-brand-500 text-white border-brand-500'
+                  : 'bg-white text-slate-500 border-slate-200 hover:bg-slate-50'}`}>
+                {t === 'important' ? '🔴 สำคัญ' : '🔵 ทั่วไป'}
+              </button>
+            ))}
+          </div>
+
+          <input
+            value={annForm.title}
+            onChange={e => setAnnForm(f => ({ ...f, title: e.target.value }))}
+            placeholder="หัวข้อประกาศ *"
+            className="w-full px-3 py-2.5 rounded-xl border border-slate-200 text-sm focus:outline-none focus:border-brand-500"
+          />
+
+          <textarea
+            value={annForm.content}
+            onChange={e => setAnnForm(f => ({ ...f, content: e.target.value }))}
+            placeholder="เนื้อหาประกาศ *"
+            rows={4}
+            className="w-full px-3 py-2.5 rounded-xl border border-slate-200 text-sm focus:outline-none focus:border-brand-500 resize-none"
+          />
+
+          {/* Image upload */}
+          <div>
+            <p className="text-xs text-slate-500 mb-2">รูปภาพประกอบ (ไม่บังคับ)</p>
+            {annForm.fileData && annForm.fileData.startsWith('data:image') && (
+              <div className="relative mb-2 inline-block">
+                <img src={annForm.fileData} alt="" className="max-h-48 rounded-xl object-cover border border-slate-200" />
+                <button
+                  onClick={() => setAnnForm(f => ({ ...f, fileData: null, fileName: '' }))}
+                  className="absolute top-1 right-1 w-6 h-6 rounded-full bg-black/60 text-white text-xs flex items-center justify-center hover:bg-black/80">
+                  ×
+                </button>
+              </div>
+            )}
+            <label className="flex items-center gap-2 px-3 py-2.5 rounded-xl border border-dashed border-slate-300 bg-slate-50 hover:bg-slate-100 cursor-pointer w-fit">
+              <Icon name="upload" size={14} className="text-slate-400" />
+              <span className="text-xs text-slate-500">{annForm.fileName || 'เลือกรูปภาพ...'}</span>
+              <input type="file" className="hidden" accept="image/*"
+                onChange={e => {
+                  const file = e.target.files[0];
+                  if (!file) return;
+                  const reader = new FileReader();
+                  reader.onload = ev => setAnnForm(f => ({ ...f, fileData: ev.target.result, fileName: file.name }));
+                  reader.readAsDataURL(file);
+                }} />
+            </label>
+          </div>
+
+          <div className="flex justify-end gap-2 pt-2">
+            <button onClick={() => setShowAnnModal(false)}
+              className="px-4 py-2 rounded-xl border border-slate-200 text-sm text-slate-500 hover:bg-slate-50">
+              ยกเลิก
+            </button>
+            <button onClick={handleSaveAnn} disabled={saving}
+              className="px-5 py-2 rounded-xl bg-brand-500 text-white text-sm font-medium hover:bg-brand-600 disabled:opacity-60">
+              {saving ? 'กำลังบันทึก...' : editAnnId ? 'อัปเดต' : 'โพสต์'}
+            </button>
+          </div>
+        </div>
+      </Modal>
+
+      <ConfirmDialog
+        open={!!confirmDelAnn}
+        title="ลบประกาศ"
+        message="ยืนยันลบประกาศนี้?"
+        onConfirm={handleDeleteAnn}
+        onCancel={() => setConfirmDelAnn(null)}
+      />
     </div>
   );
 }

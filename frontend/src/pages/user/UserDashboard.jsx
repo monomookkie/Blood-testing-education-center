@@ -73,19 +73,26 @@ export default function UserDashboard({ user, showToast }) {
 
         {/* Announcements */}
         <div className="bg-white rounded-2xl border border-slate-100 p-5 shadow-sm">
-          <h3 className="text-sm font-semibold text-navy-900 mb-4">Announcements</h3>
-          <div className="space-y-3">
-            {announcements.slice(0, 4).map(a => (
-              <div key={a.id} className={`p-3 rounded-xl border ${a.type === 'important' ? 'border-red-100 bg-red-50' : 'border-blue-100 bg-blue-50'}`}>
-                <div className="flex items-center gap-2 mb-1">
-                  <Badge variant={a.type === 'important' ? 'red' : 'blue'} className="text-[10px]">{a.type}</Badge>
-                  <span className="text-[10px] text-slate-400">{new Date(a.date).toLocaleDateString()}</span>
+          <h3 className="text-sm font-semibold text-navy-900 mb-4">ประกาศ / ข่าวสาร</h3>
+          <div className="space-y-4">
+            {announcements.slice(0, 5).map(a => (
+              <div key={a.id} className={`rounded-xl border overflow-hidden ${a.type === 'important' ? 'border-red-100' : 'border-slate-100'}`}>
+                {a.fileData && a.fileData.startsWith('data:image') && (
+                  <img src={a.fileData} alt={a.title} className="w-full max-h-52 object-cover" />
+                )}
+                <div className={`p-3 ${a.type === 'important' ? 'bg-red-50' : 'bg-slate-50'}`}>
+                  <div className="flex items-center gap-2 mb-1.5">
+                    <Badge variant={a.type === 'important' ? 'red' : 'blue'} className="text-[10px]">
+                      {a.type === 'important' ? 'สำคัญ' : 'ทั่วไป'}
+                    </Badge>
+                    <span className="text-[10px] text-slate-400">{new Date(a.date).toLocaleDateString('th-TH')}</span>
+                  </div>
+                  <p className="text-xs font-semibold text-slate-800 mb-0.5">{a.title}</p>
+                  <p className="text-[11px] text-slate-500 whitespace-pre-wrap">{a.content}</p>
                 </div>
-                <p className="text-xs font-medium text-slate-700">{a.title}</p>
-                <p className="text-[11px] text-slate-500 mt-0.5 line-clamp-2">{a.content}</p>
               </div>
             ))}
-            {announcements.length === 0 && <p className="text-xs text-slate-400">No announcements.</p>}
+            {announcements.length === 0 && <p className="text-xs text-slate-400">ยังไม่มีประกาศ</p>}
           </div>
         </div>
       </div>
