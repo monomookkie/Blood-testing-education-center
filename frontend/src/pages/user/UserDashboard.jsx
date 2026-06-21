@@ -157,20 +157,20 @@ export default function UserDashboard({ user, showToast }) {
             onClick={e => e.stopPropagation()}>
 
             {popupAnn.fileData && popupAnn.fileData.startsWith('data:image') ? (
-              <div className="relative w-full" style={{ paddingBottom: '56.25%' }}>
+              <div className="relative overflow-hidden" style={{ height: 320 }}>
                 <img src={popupAnn.fileData} alt={popupAnn.title}
                   className="absolute inset-0 w-full h-full object-cover" />
-                <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/30 to-black/10" />
+                <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/30 to-transparent" />
                 <button onClick={closePopup}
                   className="absolute top-3 right-3 w-8 h-8 rounded-full bg-black/40 hover:bg-black/60 text-white text-xl flex items-center justify-center transition-colors border-0">
                   ×
                 </button>
-                <div className="absolute bottom-0 left-0 right-0" style={{ padding: '32px' }}>
-                  <span className={`inline-block text-xs font-bold px-3 py-1 rounded-full border border-white/30 mb-4 ${popupAnn.type === 'important' ? 'bg-red-500 text-white' : 'bg-white/20 text-white'}`}>
+                <div className="absolute bottom-0 left-0 right-0 p-6">
+                  <span className={`inline-block text-xs font-bold px-3 py-1 rounded-full border border-white/30 mb-3 ${popupAnn.type === 'important' ? 'bg-red-500 text-white' : 'bg-white/20 text-white'}`}>
                     {popupAnn.type === 'important' ? 'สำคัญ' : 'ประกาศ'}
                   </span>
-                  <p className="text-white font-bold leading-snug mb-2" style={{ fontSize: 26 }}>{popupAnn.title}</p>
-                  <p className="text-white/80 leading-relaxed line-clamp-3" style={{ fontSize: 15 }}>{popupAnn.content}</p>
+                  <p className="text-white font-bold text-xl leading-snug mb-1.5">{popupAnn.title}</p>
+                  <p className="text-white/80 text-sm leading-relaxed line-clamp-2">{popupAnn.content}</p>
                   {popupAnn.link && (
                     <a href={popupAnn.link} target="_blank" rel="noopener noreferrer" onClick={closePopup}
                       className="inline-block mt-3 px-5 py-2 rounded-xl bg-white text-slate-800 text-sm font-semibold hover:bg-slate-100 transition-colors no-underline">
