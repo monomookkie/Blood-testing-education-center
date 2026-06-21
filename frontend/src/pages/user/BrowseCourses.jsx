@@ -41,7 +41,7 @@ export default function BrowseCourses({ user, showToast }) {
       let videoId = null;
       if (u.hostname.includes('youtube.com')) videoId = u.searchParams.get('v');
       else if (u.hostname === 'youtu.be') videoId = u.pathname.slice(1);
-      if (videoId) return `https://www.youtube.com/embed/${videoId}?autoplay=1&controls=0&disablekb=1&rel=0&modestbranding=1&enablejsapi=1`;
+      if (videoId) return `https://www.youtube.com/embed/${videoId}?autoplay=1&controls=0&disablekb=1&rel=0&modestbranding=1&enablejsapi=1&vq=hd1080`;
     } catch (_) {}
     return null;
   };
@@ -81,7 +81,13 @@ export default function BrowseCourses({ user, showToast }) {
         // Find which material this iframe belongs to
         const matId = Object.keys(ytRefs.current).find(id => ytRefs.current[id]?.contentWindow === e.source);
         if (!matId) return;
-        if (state === 1) setYtPlaying(s => ({ ...s, [matId]: true }));
+        if (state === 1) {
+          setYtPlaying(s => ({ ...s, [matId]: true }));
+          // Force highest available quality on play
+          ytRefs.current[matId]?.contentWindow?.postMessage(
+            JSON.stringify({ event: 'command', func: 'setPlaybackQuality', args: ['hd1080'] }), '*'
+          );
+        }
         if (state === 2) setYtPlaying(s => ({ ...s, [matId]: false }));
         if (state === 0) {
           setYtPlaying(s => ({ ...s, [matId]: false }));
@@ -323,13 +329,16 @@ export default function BrowseCourses({ user, showToast }) {
                           {expandedMat === m.id && getYouTubeEmbedUrl(m.url) && (
                             <div ref={el => ytContainerRefs.current[m.id] = el}
                               className="rounded-xl overflow-hidden border border-slate-200 aspect-video w-full relative bg-black">
-                              {/* iframe — pointer-events:none blocks all seek/click */}
+                              {/* iframe — pointer-events:none blocks seek */}
                               <iframe
                                 ref={el => ytRefs.current[m.id] = el}
                                 src={getYouTubeEmbedUrl(m.url)}
                                 className="w-full h-full pointer-events-none"
                                 allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
                               />
+                              {/* Transparent click area — play/pause on click, no visible UI */}
+                              <div className="absolute inset-0 bottom-10 cursor-pointer"
+                                onClick={() => toggleYtPlay(m.id)} />
                               {/* Custom control bar */}
                               <div className="absolute bottom-0 left-0 right-0 flex items-center gap-3 px-4 py-2.5 bg-gradient-to-t from-black/70 to-transparent">
                                 <button onClick={() => toggleYtPlay(m.id)}

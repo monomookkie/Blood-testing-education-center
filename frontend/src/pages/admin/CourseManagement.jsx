@@ -44,12 +44,17 @@ export default function CourseManagement({ showToast }) {
   const [enrollments, setEnrollments] = useState([]);
   const [filter, setFilter] = useState("all");
   const [showModal, setShowModal] = useState(false);
+  const [modalTab, setModalTab] = useState('info');
   const [editId, setEditId] = useState(null);
   const [form, setForm] = useState(EMPTY_COURSE);
   const [selectedUsers, setSelectedUsers] = useState([]);
   const [confirmDel, setConfirmDel] = useState(null);
   const [matForm, setMatForm] = useState(EMPTY_MAT);
   const [loading, setLoading] = useState(false);
+  const [userSearch, setUserSearch] = useState('');
+  const [qForm, setQForm] = useState(EMPTY_Q);
+  const [courseEnrollments, setCourseEnrollments] = useState([]);
+  const [pickerChecked, setPickerChecked] = useState([]);
 
   const load = () => Promise.all([api.getCourses(), api.getEnrollments()])
     .then(([c, e]) => { setCourses(c); setEnrollments(e); });
@@ -69,8 +74,6 @@ export default function CourseManagement({ showToast }) {
     filter === "all"
       ? courses
       : courses.filter((c) => c.status === filter.toUpperCase());
-
-  const [modalTab, setModalTab] = useState('info');
 
   const openNew = () => {
     setForm(EMPTY_COURSE);
@@ -106,11 +109,6 @@ export default function CourseManagement({ showToast }) {
     setQForm(EMPTY_Q);
   };
   const removeQuestion = (idx) => setForm(f => ({ ...f, questions: f.questions.filter((_, i) => i !== idx) }));
-
-  const [userSearch, setUserSearch] = useState('');
-  const [qForm, setQForm] = useState(EMPTY_Q);
-  const [courseEnrollments, setCourseEnrollments] = useState([]);
-  const [pickerChecked, setPickerChecked] = useState([]);
 
   const togglePicker = (id) => setPickerChecked(s => s.includes(id) ? s.filter(u => u !== id) : [...s, id]);
   const togglePickerAll = () => {
