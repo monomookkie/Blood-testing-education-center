@@ -24,7 +24,11 @@ export default function BrowseCourses({ user, showToast }) {
 
   useEffect(() => {
     Promise.all([api.getCourses(), api.getEnrollments()])
-      .then(([c, e]) => { setCourses(c.filter(c => c.status === 'PUBLISHED')); setEnrollments(e); })
+      .then(([c, e]) => {
+        const enrolledIds = new Set(e.map(en => en.courseId));
+        setCourses(c.filter(c => c.status === 'PUBLISHED' || enrolledIds.has(c.id)));
+        setEnrollments(e);
+      })
       .finally(() => setLoading(false));
   }, []);
 
