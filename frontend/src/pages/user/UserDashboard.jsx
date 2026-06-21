@@ -121,13 +121,29 @@ export default function UserDashboard({ user, showToast }) {
   const [enrollments, setEnrollments] = useState([]);
   const [announcements, setAnnouncements] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [popupAnn, setPopupAnn] = useState(null);
   const navigate = useNavigate();
 
   useEffect(() => {
     Promise.all([api.getEnrollments(), api.getAnnouncements()])
-      .then(([e, a]) => { setEnrollments(e); setAnnouncements(a); })
+      .then(([e, a]) => {
+        setEnrollments(e);
+        setAnnouncements(a);
+        if (a.length > 0) {
+          const latest = a[0];
+          const seenKey = `ann_seen_${latest.id}`;
+          if (!localStorage.getItem(seenKey)) {
+            setPopupAnn(latest);
+          }
+        }
+      })
       .finally(() => setLoading(false));
   }, []);
+
+  const closePopup = () => {
+    if (popupAnn) localStorage.setItem(`ann_seen_${popupAnn.id}`, '1');
+    setPopupAnn(null);
+  };
 
   if (loading) return <div className="flex items-center justify-center h-64 text-slate-400 text-sm">Loading…</div>;
 
@@ -137,6 +153,53 @@ export default function UserDashboard({ user, showToast }) {
 
   return (
     <div className="p-4 md:p-7 page-enter">
+
+      {/* Announcement Popup */}
+      {popupAnn && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4" style={{ background: 'rgba(0,0,0,0.5)' }}>
+          <div className="bg-white rounded-2xl shadow-2xl w-full max-w-md overflow-hidden animate-fade-in">
+            {/* Image */}
+            {popupAnn.fileData && popupAnn.fileData.startsWith('data:image') && (
+              <div className="relative w-full" style={{ aspectRatio: '16/7' }}>
+                <img src={popupAnn.fileData} alt={popupAnn.title} className="w-full h-full object-cover" />
+              </div>
+            )}
+
+            {/* Content */}
+            <div className="p-6">
+              <div className="flex items-start justify-between gap-3 mb-3">
+                <div className="flex items-center gap-2">
+                  <span className={`text-[10px] font-semibold px-2 py-0.5 rounded-full ${popupAnn.type === 'important' ? 'bg-red-100 text-red-600' : 'bg-blue-100 text-blue-600'}`}>
+                    {popupAnn.type === 'important' ? 'สำคัญ' : 'ทั่วไป'}
+                  </span>
+                  <span className="text-[11px] text-slate-400">{new Date(popupAnn.date).toLocaleDateString('th-TH')}</span>
+                </div>
+                <button onClick={closePopup}
+                  className="w-7 h-7 rounded-full bg-slate-100 hover:bg-slate-200 text-slate-400 hover:text-slate-600 flex items-center justify-center text-base flex-shrink-0 transition-colors">
+                  ×
+                </button>
+              </div>
+
+              <h3 className="text-lg font-semibold text-slate-800 mb-2">{popupAnn.title}</h3>
+              <p className="text-sm text-slate-500 whitespace-pre-wrap leading-relaxed">{popupAnn.content}</p>
+
+              {popupAnn.link && (
+                <a href={popupAnn.link} target="_blank" rel="noopener noreferrer"
+                  onClick={closePopup}
+                  className="mt-4 w-full block text-center py-2.5 rounded-xl bg-brand-500 hover:bg-brand-600 text-white text-sm font-medium transition-colors">
+                  ดูรายละเอียดเพิ่มเติม →
+                </a>
+              )}
+              {!popupAnn.link && (
+                <button onClick={closePopup}
+                  className="mt-4 w-full py-2.5 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-600 text-sm font-medium transition-colors">
+                  รับทราบ
+                </button>
+              )}
+            </div>
+          </div>
+        </div>
+      )}
       <div className="mb-6">
         <h2 className="text-xl font-semibold text-navy-900">Welcome back, {user.name.split(' ')[0]}</h2>
       </div>
