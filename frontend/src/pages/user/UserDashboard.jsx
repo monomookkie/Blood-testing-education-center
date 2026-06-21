@@ -150,10 +150,10 @@ export default function UserDashboard({ user, showToast }) {
 
       {/* Announcement Popup */}
       {popupAnn && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center"
-          style={{ background: 'rgba(15,23,42,0.7)', backdropFilter: 'blur(8px)', padding: '24px' }}
+        <div className="fixed inset-0 z-50 flex items-center p-4 md:p-7"
+          style={{ background: 'rgba(15,23,42,0.7)', backdropFilter: 'blur(8px)' }}
           onClick={closePopup}>
-          <div className="w-full rounded-2xl overflow-hidden shadow-2xl"
+          <div className="w-full rounded-2xl overflow-hidden shadow-2xl md:ml-56"
             onClick={e => e.stopPropagation()}>
 
             {popupAnn.fileData && popupAnn.fileData.startsWith('data:image') ? (
