@@ -6,7 +6,7 @@ import Badge from '../../components/ui/Badge';
 import Modal from '../../components/ui/Modal';
 import ConfirmDialog from '../../components/ui/ConfirmDialog';
 
-const EMPTY_ANN = { title: '', content: '', type: 'info', fileData: null, fileName: '' };
+const EMPTY_ANN = { title: '', content: '', type: 'info', fileData: null, fileName: '', link: '' };
 
 export default function AdminDashboard({ showToast }) {
   const [summary, setSummary] = useState(null);
@@ -47,7 +47,7 @@ export default function AdminDashboard({ showToast }) {
   };
 
   const openEditAnn = (a) => {
-    setAnnForm({ title: a.title, content: a.content, type: a.type, fileData: a.fileData || null, fileName: a.fileName || '' });
+    setAnnForm({ title: a.title, content: a.content, type: a.type, fileData: a.fileData || null, fileName: a.fileName || '', link: a.link || '' });
     setEditAnnId(a.id);
     setShowAnnModal(true);
   };
@@ -218,6 +218,13 @@ export default function AdminDashboard({ showToast }) {
             placeholder="เนื้อหาประกาศ *"
             rows={4}
             className="w-full px-3 py-2.5 rounded-xl border border-slate-200 text-sm focus:outline-none focus:border-brand-500 resize-none"
+          />
+
+          <input
+            value={annForm.link}
+            onChange={e => setAnnForm(f => ({ ...f, link: e.target.value }))}
+            placeholder="ลิงค์ (ไม่บังคับ) เช่น https://..."
+            className="w-full px-3 py-2.5 rounded-xl border border-slate-200 text-sm focus:outline-none focus:border-brand-500"
           />
 
           {/* Image upload */}
