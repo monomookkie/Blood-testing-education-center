@@ -121,6 +121,7 @@ model Announcement {
   date     DateTime @default(now())
   fileName String?
   fileData String?  @db.LongText
+  link     String?
 }
 
 model CertTemplate {

@@ -11,14 +11,14 @@ router.get('/', requireAuth, async (req, res) => {
 });
 
 router.post('/', requireAdmin, async (req, res) => {
-  const { title, content, type, fileName, fileData } = req.body;
-  const item = await prisma.announcement.create({ data: { title, content, type: type || 'info', fileName, fileData } });
+  const { title, content, type, fileName, fileData, link } = req.body;
+  const item = await prisma.announcement.create({ data: { title, content, type: type || 'info', fileName, fileData, link: link || null } });
   res.status(201).json(item);
 });
 
 router.put('/:id', requireAdmin, async (req, res) => {
-  const { title, content, type, fileName, fileData } = req.body;
-  const item = await prisma.announcement.update({ where: { id: req.params.id }, data: { title, content, type, fileName, fileData } });
+  const { title, content, type, fileName, fileData, link } = req.body;
+  const item = await prisma.announcement.update({ where: { id: req.params.id }, data: { title, content, type, fileName, fileData, link: link || null } });
   res.json(item);
 });
 

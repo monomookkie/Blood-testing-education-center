@@ -58,7 +58,6 @@ function AnnouncementCarousel({ announcements }) {
                       className="absolute inset-0 w-full h-full object-cover"
                       style={{ imageRendering: 'auto' }} />
                     <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/20 to-transparent" />
-                    {ann.link && <div className="absolute top-3 right-3 w-6 h-6 rounded-full bg-white/20 backdrop-blur-sm flex items-center justify-center text-white text-xs">↗</div>}
                     {/* Text on image */}
                     <div className="absolute bottom-0 left-0 right-0 p-5 md:p-7">
                       <div className="flex items-center gap-2 mb-2">
@@ -72,8 +71,7 @@ function AnnouncementCarousel({ announcements }) {
                     </div>
                   </div>
                 ) : (
-                  <div className={`relative px-5 md:px-7 py-8 ${ann.type === 'important' ? 'bg-red-50' : 'bg-gradient-to-r from-brand-50 to-slate-50'}`}>
-                    {ann.link && <div className="absolute top-3 right-3 w-6 h-6 rounded-full bg-slate-200 flex items-center justify-center text-slate-500 text-xs">↗</div>}
+                  <div className={`px-5 md:px-7 py-8 ${ann.type === 'important' ? 'bg-red-50' : 'bg-gradient-to-r from-brand-50 to-slate-50'}`}>
                     <div className="max-w-2xl mx-auto">
                       <div className="flex items-center gap-2 mb-2">
                         <span className={`text-[10px] font-semibold px-2 py-0.5 rounded-full ${ann.type === 'important' ? 'bg-red-100 text-red-600' : 'bg-brand-100 text-brand-600'}`}>
