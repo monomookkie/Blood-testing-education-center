@@ -61,12 +61,15 @@ export default function CourseManagement({ showToast }) {
       ? courses
       : courses.filter((c) => c.status === filter.toUpperCase());
 
+  const [modalTab, setModalTab] = useState('info');
+
   const openNew = () => {
     setForm(EMPTY_COURSE);
     setMatForm(EMPTY_MAT);
     setQForm(EMPTY_Q);
     setSelectedUsers([]);
     setEditId(null);
+    setModalTab('info');
     setShowModal(true);
   };
   const openEdit = (c) => {
@@ -75,6 +78,7 @@ export default function CourseManagement({ showToast }) {
     setQForm(EMPTY_Q);
     setSelectedUsers([]);
     setEditId(c.id);
+    setModalTab('info');
     setShowModal(true);
   };
 
@@ -258,237 +262,163 @@ export default function CourseManagement({ showToast }) {
         title={editId ? "Edit Course" : "New Course"}
         size="700px"
       >
-        <div className="space-y-4">
-          <div className="grid grid-cols-2 gap-4">
-            <div>
-              <label className="block text-xs font-medium text-slate-500 mb-1.5">
-                Title *
-              </label>
-              <input
-                value={form.title}
-                onChange={(e) =>
-                  setForm((f) => ({ ...f, title: e.target.value }))
-                }
-                className={inputCls}
-                placeholder="Course title"
-              />
-            </div>
-            <div>
-              <label className="block text-xs font-medium text-slate-500 mb-1.5">
-                Category *
-              </label>
-              <input
-                value={form.category}
-                onChange={(e) =>
-                  setForm((f) => ({ ...f, category: e.target.value }))
-                }
-                className={inputCls}
-                placeholder="e.g. Core Screening"
-              />
-            </div>
-          </div>
-          <div>
-            <label className="block text-xs font-medium text-slate-500 mb-1.5">
-              Description
-            </label>
-            <textarea
-              value={form.description}
-              onChange={(e) =>
-                setForm((f) => ({ ...f, description: e.target.value }))
-              }
-              rows={3}
-              className={inputCls + " resize-none"}
-            />
-          </div>
-          <div className="grid grid-cols-3 gap-4">
-            <div>
-              <label className="block text-xs font-medium text-slate-500 mb-1.5">
-                Status
-              </label>
-              <select
-                value={form.status}
-                onChange={(e) =>
-                  setForm((f) => ({ ...f, status: e.target.value }))
-                }
-                className={inputCls}
-              >
-                <option value="DRAFT">Draft</option>
-                <option value="PUBLISHED">Published</option>
-              </select>
-            </div>
-            <div>
-              <label className="block text-xs font-medium text-slate-500 mb-1.5">
-                Duration (min) *
-              </label>
-              <input
-                type="number"
-                value={form.duration}
-                onChange={(e) =>
-                  setForm((f) => ({ ...f, duration: e.target.value }))
-                }
-                className={inputCls}
-              />
-            </div>
-            <div>
-              <label className="block text-xs font-medium text-slate-500 mb-1.5">
-                Pass Score (%)
-              </label>
-              <input
-                type="number"
-                value={form.passScore}
-                onChange={(e) =>
-                  setForm((f) => ({ ...f, passScore: Number(e.target.value) }))
-                }
-                className={inputCls}
-              />
-            </div>
-          </div>
-          <div>
-            <label className="block text-xs font-medium text-slate-500 mb-1.5">
-              Tags
-            </label>
-            <div className="flex gap-2 flex-wrap">
-              {["mandatory", "core", "sop", "safety", "donor-facing"].map(
-                (t) => (
-                  <button
-                    key={t}
-                    onClick={() => toggleTag(t)}
-                    className={`px-3 py-1 rounded-full text-xs font-medium border transition-colors ${form.tags.includes(t) ? "bg-brand-500 text-white border-brand-500" : "border-slate-200 text-slate-500 hover:bg-slate-50"}`}
-                  >
-                    {t}
-                  </button>
-                ),
-              )}
-            </div>
-          </div>
-
-          {/* Materials */}
-          <div>
-            <label className="block text-xs font-medium text-slate-500 mb-2">
-              Materials
-            </label>
-            <div className="space-y-2 mb-3">
-              {form.materials.map((m, i) => (
-                <div
-                  key={i}
-                  className="flex items-center gap-2 p-2.5 bg-slate-50 rounded-xl"
-                >
-                  <MatBadge type={m.type} />
-                  <span className="text-xs text-slate-700 flex-1 truncate">
-                    {m.title}
-                  </span>
-                  <button
-                    onClick={() => removeMaterial(i)}
-                    className="text-slate-400 hover:text-red-500"
-                  >
-                    <Icon name="x" size={13} />
-                  </button>
-                </div>
-              ))}
-            </div>
-            <div className="flex gap-2">
-              <select
-                value={matForm.type}
-                onChange={(e) =>
-                  setMatForm((m) => ({ ...m, type: e.target.value }))
-                }
-                className="px-2 py-2 rounded-lg border border-slate-200 text-xs bg-slate-50"
-              >
-                {MATERIAL_TYPES.map((t) => (
-                  <option key={t} value={t}>
-                    {t.toUpperCase()}
-                  </option>
-                ))}
-              </select>
-              <input
-                value={matForm.title}
-                onChange={(e) =>
-                  setMatForm((m) => ({ ...m, title: e.target.value }))
-                }
-                placeholder="Title"
-                className="flex-1 px-3 py-2 rounded-lg border border-slate-200 text-xs bg-slate-50"
-              />
-              <input
-                value={matForm.url}
-                onChange={(e) =>
-                  setMatForm((m) => ({ ...m, url: e.target.value }))
-                }
-                placeholder="URL (optional)"
-                className="flex-1 px-3 py-2 rounded-lg border border-slate-200 text-xs bg-slate-50"
-              />
-              <button
-                onClick={addMaterial}
-                className="px-3 py-2 bg-brand-500 text-white rounded-lg text-xs hover:bg-brand-600"
-              >
-                <Icon name="plus" size={13} />
+        {/* Modal Tabs */}
+        <div className="flex gap-1.5 mb-5 border-b border-slate-100 pb-3">
+          {[['info','Course Info'],['materials','Materials'],['quiz','Post-Test'],['assign','Assign Users']].map(([k,l]) => (
+            (!editId || k !== 'assign') && (
+              <button key={k} onClick={() => setModalTab(k)}
+                className={`px-3 py-1.5 rounded-lg text-xs font-medium transition-colors ${modalTab === k ? 'bg-brand-500 text-white' : 'text-slate-500 hover:bg-slate-100'}`}>
+                {l}{k === 'quiz' && form.questions.length > 0 ? ` (${form.questions.length})` : ''}{k === 'assign' && selectedUsers.length > 0 ? ` (${selectedUsers.length})` : ''}
               </button>
-            </div>
-          </div>
+            )
+          ))}
+        </div>
 
-          {/* Post-Test */}
-          <div className="border border-slate-200 rounded-2xl p-4">
-            <div className="flex items-center justify-between mb-3">
-              <label className="text-xs font-semibold text-slate-600">Post-Test Quiz</label>
-              <div className="flex items-center gap-2">
-                <span className="text-xs text-slate-400">ต้องตอบถูก</span>
-                <input type="number" min="0" max={form.questions.length} value={form.quizRequired}
-                  onChange={e => setForm(f => ({ ...f, quizRequired: Number(e.target.value) }))}
-                  className="w-14 px-2 py-1 rounded-lg border border-slate-200 bg-slate-50 text-xs text-center focus:outline-none focus:border-brand-500" />
-                <span className="text-xs text-slate-400">/ {form.questions.length} ข้อ ถึงจะผ่าน</span>
+        <div className="space-y-4">
+
+          {/* ── Tab: Course Info ── */}
+          {modalTab === 'info' && (
+            <div className="space-y-4">
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <label className="block text-xs font-medium text-slate-500 mb-1.5">Title *</label>
+                  <input value={form.title} onChange={e => setForm(f => ({ ...f, title: e.target.value }))} className={inputCls} placeholder="Course title" />
+                </div>
+                <div>
+                  <label className="block text-xs font-medium text-slate-500 mb-1.5">Category *</label>
+                  <input value={form.category} onChange={e => setForm(f => ({ ...f, category: e.target.value }))} className={inputCls} placeholder="e.g. Core Screening" />
+                </div>
+              </div>
+              <div>
+                <label className="block text-xs font-medium text-slate-500 mb-1.5">Description</label>
+                <textarea value={form.description} onChange={e => setForm(f => ({ ...f, description: e.target.value }))} rows={3} className={inputCls + " resize-none"} />
+              </div>
+              <div className="grid grid-cols-3 gap-4">
+                <div>
+                  <label className="block text-xs font-medium text-slate-500 mb-1.5">Status</label>
+                  <select value={form.status} onChange={e => setForm(f => ({ ...f, status: e.target.value }))} className={inputCls}>
+                    <option value="DRAFT">Draft</option>
+                    <option value="PUBLISHED">Published</option>
+                  </select>
+                </div>
+                <div>
+                  <label className="block text-xs font-medium text-slate-500 mb-1.5">Duration (min) *</label>
+                  <input type="number" value={form.duration} onChange={e => setForm(f => ({ ...f, duration: e.target.value }))} className={inputCls} />
+                </div>
+                <div>
+                  <label className="block text-xs font-medium text-slate-500 mb-1.5">Pass Score (%)</label>
+                  <input type="number" value={form.passScore} onChange={e => setForm(f => ({ ...f, passScore: Number(e.target.value) }))} className={inputCls} />
+                </div>
+              </div>
+              <div>
+                <label className="block text-xs font-medium text-slate-500 mb-1.5">Tags</label>
+                <div className="flex gap-2 flex-wrap">
+                  {["mandatory", "core", "sop", "safety", "donor-facing"].map(t => (
+                    <button key={t} onClick={() => toggleTag(t)}
+                      className={`px-3 py-1 rounded-full text-xs font-medium border transition-colors ${form.tags.includes(t) ? "bg-brand-500 text-white border-brand-500" : "border-slate-200 text-slate-500 hover:bg-slate-50"}`}>
+                      {t}
+                    </button>
+                  ))}
+                </div>
               </div>
             </div>
+          )}
 
-            {/* Questions list */}
-            {form.questions.length > 0 && (
+          {/* ── Tab: Materials ── */}
+          {modalTab === 'materials' && (
+            <div>
               <div className="space-y-2 mb-3">
-                {form.questions.map((q, i) => (
-                  <div key={q.id} className="bg-slate-50 rounded-xl p-3">
-                    <div className="flex items-start justify-between gap-2 mb-2">
-                      <span className="text-xs font-medium text-navy-900">{i + 1}. {q.question}</span>
-                      <button onClick={() => removeQuestion(i)} className="text-slate-300 hover:text-red-400 flex-shrink-0">
-                        <Icon name="x" size={13} />
-                      </button>
-                    </div>
-                    <div className="grid grid-cols-2 gap-1">
-                      {q.choices.map((c, ci) => (
-                        <span key={ci} className={`text-[11px] px-2 py-1 rounded-lg ${ci === q.correct ? 'bg-emerald-100 text-emerald-700 font-medium' : 'text-slate-500'}`}>
-                          {ci === q.correct ? '✓ ' : ''}{c}
-                        </span>
-                      ))}
-                    </div>
+                {form.materials.map((m, i) => (
+                  <div key={i} className="flex items-center gap-2 p-2.5 bg-slate-50 rounded-xl">
+                    <MatBadge type={m.type} />
+                    <span className="text-xs text-slate-700 flex-1 truncate">{m.title}</span>
+                    <button onClick={() => removeMaterial(i)} className="text-slate-400 hover:text-red-500">
+                      <Icon name="x" size={13} />
+                    </button>
                   </div>
                 ))}
+                {form.materials.length === 0 && <p className="text-xs text-slate-400 text-center py-4">No materials yet</p>}
               </div>
-            )}
-
-            {/* Add question form */}
-            <div className="bg-slate-50 rounded-xl p-3 space-y-2">
-              <input value={qForm.question} onChange={e => setQForm(q => ({ ...q, question: e.target.value }))}
-                placeholder="คำถาม *"
-                className="w-full px-3 py-2 rounded-lg border border-slate-200 bg-white text-xs focus:outline-none focus:border-brand-500" />
-              <div className="grid grid-cols-2 gap-2">
-                {qForm.choices.map((c, i) => (
-                  <div key={i} className="flex items-center gap-1.5">
-                    <input type="radio" name="correct" checked={qForm.correct === i}
-                      onChange={() => setQForm(q => ({ ...q, correct: i }))} className="accent-emerald-500 flex-shrink-0" title="เฉลย" />
-                    <input value={c} onChange={e => {
-                      const choices = [...qForm.choices]; choices[i] = e.target.value;
-                      setQForm(q => ({ ...q, choices }));
-                    }} placeholder={`ตัวเลือก ${i + 1} *`}
-                      className="flex-1 px-2 py-1.5 rounded-lg border border-slate-200 bg-white text-xs focus:outline-none focus:border-brand-500" />
-                  </div>
-                ))}
-              </div>
-              <div className="flex items-center justify-between">
-                <span className="text-[10px] text-slate-400">กดปุ่ม ● หน้าตัวเลือกเพื่อเลือกเฉลย</span>
-                <button onClick={addQuestion} className="px-3 py-1.5 bg-brand-500 text-white rounded-lg text-xs hover:bg-brand-600 transition-colors">
-                  + เพิ่มคำถาม
+              <div className="flex gap-2">
+                <select value={matForm.type} onChange={e => setMatForm(m => ({ ...m, type: e.target.value }))}
+                  className="px-2 py-2 rounded-lg border border-slate-200 text-xs bg-slate-50">
+                  {MATERIAL_TYPES.map(t => <option key={t} value={t}>{t.toUpperCase()}</option>)}
+                </select>
+                <input value={matForm.title} onChange={e => setMatForm(m => ({ ...m, title: e.target.value }))}
+                  placeholder="Title" className="flex-1 px-3 py-2 rounded-lg border border-slate-200 text-xs bg-slate-50" />
+                <input value={matForm.url} onChange={e => setMatForm(m => ({ ...m, url: e.target.value }))}
+                  placeholder="URL (optional)" className="flex-1 px-3 py-2 rounded-lg border border-slate-200 text-xs bg-slate-50" />
+                <button onClick={addMaterial} className="px-3 py-2 bg-brand-500 text-white rounded-lg text-xs hover:bg-brand-600">
+                  <Icon name="plus" size={13} />
                 </button>
               </div>
             </div>
-          </div>
+          )}
 
-          {!editId && (
+          {/* ── Tab: Post-Test ── */}
+          {modalTab === 'quiz' && (
+            <div className="space-y-3">
+              <div className="flex items-center gap-2 bg-slate-50 rounded-xl p-3">
+                <span className="text-xs text-slate-500">ต้องตอบถูก</span>
+                <input type="number" min="0" max={form.questions.length} value={form.quizRequired}
+                  onChange={e => setForm(f => ({ ...f, quizRequired: Number(e.target.value) }))}
+                  className="w-16 px-2 py-1 rounded-lg border border-slate-200 bg-white text-xs text-center focus:outline-none focus:border-brand-500" />
+                <span className="text-xs text-slate-500">/ {form.questions.length} ข้อ ถึงจะผ่าน</span>
+              </div>
+
+              {form.questions.length > 0 && (
+                <div className="space-y-2">
+                  {form.questions.map((q, i) => (
+                    <div key={q.id} className="bg-slate-50 rounded-xl p-3">
+                      <div className="flex items-start justify-between gap-2 mb-2">
+                        <span className="text-xs font-medium text-navy-900">{i + 1}. {q.question}</span>
+                        <button onClick={() => removeQuestion(i)} className="text-slate-300 hover:text-red-400 flex-shrink-0">
+                          <Icon name="x" size={13} />
+                        </button>
+                      </div>
+                      <div className="grid grid-cols-2 gap-1">
+                        {q.choices.map((c, ci) => (
+                          <span key={ci} className={`text-[11px] px-2 py-1 rounded-lg ${ci === q.correct ? 'bg-emerald-100 text-emerald-700 font-medium' : 'text-slate-500'}`}>
+                            {ci === q.correct ? '✓ ' : ''}{c}
+                          </span>
+                        ))}
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              )}
+
+              <div className="border border-slate-200 rounded-xl p-3 space-y-2">
+                <p className="text-[10px] font-semibold text-slate-400 uppercase tracking-wide">เพิ่มคำถามใหม่</p>
+                <input value={qForm.question} onChange={e => setQForm(q => ({ ...q, question: e.target.value }))}
+                  placeholder="คำถาม *"
+                  className="w-full px-3 py-2 rounded-lg border border-slate-200 bg-white text-xs focus:outline-none focus:border-brand-500" />
+                <div className="grid grid-cols-2 gap-2">
+                  {qForm.choices.map((c, i) => (
+                    <div key={i} className="flex items-center gap-1.5">
+                      <input type="radio" name="correct" checked={qForm.correct === i}
+                        onChange={() => setQForm(q => ({ ...q, correct: i }))}
+                        className="accent-emerald-500 flex-shrink-0" title="เลือกเป็นเฉลย" />
+                      <input value={c} onChange={e => {
+                        const choices = [...qForm.choices]; choices[i] = e.target.value;
+                        setQForm(q => ({ ...q, choices }));
+                      }} placeholder={`ตัวเลือก ${i + 1} *`}
+                        className="flex-1 px-2 py-1.5 rounded-lg border border-slate-200 bg-white text-xs focus:outline-none focus:border-brand-500" />
+                    </div>
+                  ))}
+                </div>
+                <div className="flex items-center justify-between pt-1">
+                  <span className="text-[10px] text-slate-400">กด ● หน้าตัวเลือกเพื่อเลือกเฉลย</span>
+                  <button onClick={addQuestion} className="px-3 py-1.5 bg-brand-500 text-white rounded-lg text-xs hover:bg-brand-600 transition-colors">
+                    + เพิ่มคำถาม
+                  </button>
+                </div>
+              </div>
+            </div>
+          )}
+
+          {/* ── Tab: Assign Users (new course only) ── */}
+          {modalTab === 'assign' && !editId && (
             <div>
               <div className="flex items-center justify-between mb-2">
                 <label className="text-xs font-medium text-slate-500">Assign to Users <span className="text-slate-300">(optional)</span></label>
@@ -501,15 +431,11 @@ export default function CourseManagement({ showToast }) {
                   </button>
                 </div>
               </div>
-
-              {/* Search */}
               <div className="relative mb-2">
                 <Icon name="search" size={13} className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" />
                 <input value={userSearch} onChange={e => setUserSearch(e.target.value)} placeholder="Search users…"
                   className="w-full pl-8 pr-3 py-2 rounded-xl border border-slate-200 bg-slate-50 text-xs focus:outline-none focus:border-brand-500" />
               </div>
-
-              {/* Selected chips */}
               {selectedUsers.length > 0 && (
                 <div className="flex flex-wrap gap-1.5 mb-2">
                   {selectedUsers.map(id => {
@@ -523,9 +449,7 @@ export default function CourseManagement({ showToast }) {
                   })}
                 </div>
               )}
-
-              {/* User list */}
-              <div className="border border-slate-200 rounded-xl overflow-hidden max-h-48 overflow-y-auto">
+              <div className="border border-slate-200 rounded-xl overflow-hidden max-h-52 overflow-y-auto">
                 {users.filter(u => u.role === 'USER' && u.name.toLowerCase().includes(userSearch.toLowerCase())).length === 0 ? (
                   <div className="px-4 py-6 text-center text-xs text-slate-400">No users found</div>
                 ) : (
@@ -549,18 +473,14 @@ export default function CourseManagement({ showToast }) {
             </div>
           )}
 
-          <div className="flex gap-3 pt-2">
-            <button
-              onClick={() => setShowModal(false)}
-              className="flex-1 py-2.5 rounded-xl border border-slate-200 text-sm text-slate-600 hover:bg-slate-50"
-            >
+          {/* ── Save / Cancel (always visible) ── */}
+          <div className="flex gap-3 pt-2 border-t border-slate-100">
+            <button onClick={() => setShowModal(false)}
+              className="flex-1 py-2.5 rounded-xl border border-slate-200 text-sm text-slate-600 hover:bg-slate-50">
               Cancel
             </button>
-            <button
-              onClick={handleSave}
-              disabled={loading}
-              className="flex-1 py-2.5 rounded-xl bg-brand-500 text-white text-sm font-medium hover:bg-brand-600 disabled:opacity-60"
-            >
+            <button onClick={handleSave} disabled={loading}
+              className="flex-1 py-2.5 rounded-xl bg-brand-500 text-white text-sm font-medium hover:bg-brand-600 disabled:opacity-60">
               {loading ? "Saving…" : editId ? "Update Course" : "Create Course"}
             </button>
           </div>
