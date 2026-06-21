@@ -251,7 +251,7 @@ export default function CertificateEngine({ showToast }) {
             <select value={extForm.userId} onChange={e => setExtForm(f => ({ ...f, userId: e.target.value }))}
               className="w-full px-3 py-2.5 rounded-xl border border-slate-200 bg-slate-50 text-sm focus:outline-none focus:border-brand-500">
               <option value="">Select staff…</option>
-              {users.filter(u => u.role !== 'ADMIN').map(u => <option key={u.id} value={u.id}>{u.name}</option>)}
+              {users.map(u => <option key={u.id} value={u.id}>{u.name}</option>)}
             </select>
           </div>
           <div>
