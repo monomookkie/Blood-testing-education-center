@@ -62,4 +62,32 @@ router.delete('/:id', requireAdmin, async (req, res) => {
   res.json({ message: 'Deleted' });
 });
 
+// GET /api/certificates/external
+router.get('/external', requireAuth, async (req, res) => {
+  const certs = await prisma.externalCert.findMany({
+    where: { userId: req.user.id },
+    orderBy: { createdAt: 'desc' }
+  });
+  res.json(certs);
+});
+
+// POST /api/certificates/external
+router.post('/external', requireAuth, async (req, res) => {
+  const { title, issuer, issuedAt, expiresAt, fileData } = req.body;
+  if (!title?.trim() || !issuer?.trim() || !issuedAt) return res.status(400).json({ error: 'Title, issuer and issue date are required' });
+  const cert = await prisma.externalCert.create({
+    data: { userId: req.user.id, title: title.trim(), issuer: issuer.trim(), issuedAt: new Date(issuedAt), expiresAt: expiresAt ? new Date(expiresAt) : null, fileData: fileData || null }
+  });
+  res.status(201).json(cert);
+});
+
+// DELETE /api/certificates/external/:id
+router.delete('/external/:id', requireAuth, async (req, res) => {
+  const cert = await prisma.externalCert.findUnique({ where: { id: req.params.id } });
+  if (!cert) return res.status(404).json({ error: 'Not found' });
+  if (cert.userId !== req.user.id) return res.status(403).json({ error: 'Forbidden' });
+  await prisma.externalCert.delete({ where: { id: req.params.id } });
+  res.json({ message: 'Deleted' });
+});
+
 export default router;

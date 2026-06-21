@@ -53,6 +53,9 @@ export const api = {
   updateCertTemplate: (id, body) => req('PUT', `/certificates/templates/${id}`, body),
   issueCertificate: (body) => req('POST', '/certificates/issue', body),
   deleteCertificate: (id) => req('DELETE', `/certificates/${id}`),
+  getExternalCerts: () => req('GET', '/certificates/external'),
+  addExternalCert: (body) => req('POST', '/certificates/external', body),
+  deleteExternalCert: (id) => req('DELETE', `/certificates/external/${id}`),
 
   // Training
   getTraining: () => req('GET', '/training'),
