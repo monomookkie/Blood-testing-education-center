@@ -391,8 +391,9 @@ export default function CourseManagement({ showToast }) {
                   <input value={matForm.url} onChange={e => setMatForm(m => ({ ...m, url: e.target.value }))}
                     placeholder="URL (optional)" className="flex-1 px-3 py-2 rounded-lg border border-slate-200 text-xs bg-slate-50" />
                   <div className="flex items-center gap-1.5 flex-shrink-0">
-                    <input type="number" min="0" max="100" value={matForm.weight}
-                      onChange={e => setMatForm(m => ({ ...m, weight: Number(e.target.value) }))}
+                    <input type="number" min="0" max="100" value={matForm.weight === 0 ? '' : matForm.weight}
+                      onChange={e => setMatForm(m => ({ ...m, weight: e.target.value === '' ? 0 : Number(e.target.value) }))}
+                      placeholder="0"
                       className="w-16 px-2 py-2 rounded-lg border border-slate-200 text-xs bg-slate-50 text-center focus:outline-none focus:border-brand-500" />
                     <span className="text-xs text-slate-400">%</span>
                   </div>
@@ -470,47 +471,66 @@ export default function CourseManagement({ showToast }) {
           {/* ── Tab: Users ── */}
           {modalTab === 'assign' && (
             <div className="space-y-4">
-              {/* Edit mode: show current enrollees */}
-              {editId && (
-                <div>
-                  <p className="text-xs font-semibold text-slate-500 mb-2">ผู้เรียนปัจจุบัน ({courseEnrollments.length} คน)</p>
-                  {courseEnrollments.length === 0 ? (
-                    <p className="text-xs text-slate-400 text-center py-4 bg-slate-50 rounded-xl">ยังไม่มีผู้เรียน</p>
-                  ) : (
-                    <div className="border border-slate-200 rounded-xl overflow-hidden max-h-44 overflow-y-auto">
-                      {courseEnrollments.map(e => (
-                        <div key={e.id} className="flex items-center gap-3 px-4 py-2.5 border-b border-slate-50 last:border-0">
-                          <div className="w-7 h-7 rounded-full bg-brand-500/10 flex items-center justify-center text-[10px] font-bold text-brand-600 flex-shrink-0">
-                            {e.user.avatar}
+              {/* Confirmed list (edit = enrolled, new = selectedUsers) */}
+              <div>
+                <p className="text-xs font-semibold text-slate-500 mb-2">
+                  {editId ? `ผู้เรียนปัจจุบัน (${courseEnrollments.length} คน)` : `จะ Enroll (${selectedUsers.length} คน)`}
+                </p>
+                {(editId ? courseEnrollments.length === 0 : selectedUsers.length === 0) ? (
+                  <p className="text-xs text-slate-400 text-center py-3 bg-slate-50 rounded-xl">ยังไม่มีผู้เรียน</p>
+                ) : (
+                  <div className="border border-slate-200 rounded-xl overflow-hidden max-h-40 overflow-y-auto">
+                    {editId
+                      ? courseEnrollments.map(e => (
+                          <div key={e.id} className="flex items-center gap-3 px-4 py-2.5 border-b border-slate-50 last:border-0">
+                            <div className="w-7 h-7 rounded-full bg-brand-500/10 flex items-center justify-center text-[10px] font-bold text-brand-600 flex-shrink-0">
+                              {e.user.avatar}
+                            </div>
+                            <div className="flex-1 min-w-0">
+                              <div className="text-sm text-navy-900 font-medium truncate">{e.user.name}</div>
+                              <div className="text-[10px] text-slate-400 truncate">{e.user.dept}</div>
+                            </div>
+                            <div className="flex items-center gap-2">
+                              <span className="text-[10px] text-slate-400">{e.progress}%</span>
+                              {e.completed && <Badge variant="green" className="text-[9px]">สำเร็จ</Badge>}
+                              <button onClick={() => handleUnenroll(e.id)} className="text-slate-300 hover:text-red-500 transition-colors">
+                                <Icon name="x" size={13} />
+                              </button>
+                            </div>
                           </div>
-                          <div className="flex-1 min-w-0">
-                            <div className="text-sm text-navy-900 font-medium truncate">{e.user.name}</div>
-                            <div className="text-[10px] text-slate-400 truncate">{e.user.dept}</div>
-                          </div>
-                          <div className="flex items-center gap-2">
-                            <span className="text-[10px] text-slate-400">{e.progress}%</span>
-                            {e.completed && <Badge variant="green" className="text-[9px]">สำเร็จ</Badge>}
-                            <button onClick={() => handleUnenroll(e.id)}
-                              className="text-slate-300 hover:text-red-500 transition-colors" title="ถอนออก">
-                              <Icon name="x" size={13} />
-                            </button>
-                          </div>
-                        </div>
-                      ))}
-                    </div>
-                  )}
-                </div>
-              )}
+                        ))
+                      : selectedUsers.map(id => {
+                          const u = users.find(u => u.id === id);
+                          return u ? (
+                            <div key={id} className="flex items-center gap-3 px-4 py-2.5 border-b border-slate-50 last:border-0">
+                              <div className="w-7 h-7 rounded-full bg-brand-500/10 flex items-center justify-center text-[10px] font-bold text-brand-600 flex-shrink-0">
+                                {u.avatar}
+                              </div>
+                              <div className="flex-1 min-w-0">
+                                <div className="text-sm text-navy-900 font-medium truncate">{u.name}</div>
+                                <div className="text-[10px] text-slate-400 truncate">{u.dept}</div>
+                              </div>
+                              <button onClick={() => toggleUser(id)} className="text-slate-300 hover:text-red-500 transition-colors">
+                                <Icon name="x" size={13} />
+                              </button>
+                            </div>
+                          ) : null;
+                        })
+                    }
+                  </div>
+                )}
+              </div>
 
-              {/* Add new users */}
+              {/* User picker */}
               <div>
                 <div className="flex items-center justify-between mb-2">
-                  <p className="text-xs font-semibold text-slate-500">{editId ? 'เพิ่มผู้เรียนใหม่' : 'เลือกผู้เรียน'} <span className="font-normal text-slate-300">(optional)</span></p>
+                  <p className="text-xs font-semibold text-slate-500">เพิ่มผู้เรียน</p>
                   <div className="flex items-center gap-3">
-                    {selectedUsers.length > 0 && <span className="text-xs font-medium text-brand-500">{selectedUsers.length} selected</span>}
-                    <button type="button" onClick={toggleAll} className="text-xs text-slate-400 hover:text-brand-500 transition-colors">
-                      {selectedUsers.length === users.filter(u => u.role === 'USER' && !courseEnrollments.find(e => e.userId === u.id)).length ? 'Deselect all' : 'Select all'}
-                    </button>
+                    {!editId && (
+                      <button type="button" onClick={toggleAll} className="text-xs text-slate-400 hover:text-brand-500 transition-colors">
+                        {selectedUsers.length === users.filter(u => u.role === 'USER').length ? 'Deselect all' : 'Select all'}
+                      </button>
+                    )}
                   </div>
                 </div>
                 <div className="relative mb-2">
@@ -518,22 +538,10 @@ export default function CourseManagement({ showToast }) {
                   <input value={userSearch} onChange={e => setUserSearch(e.target.value)} placeholder="Search users…"
                     className="w-full pl-8 pr-3 py-2 rounded-xl border border-slate-200 bg-slate-50 text-xs focus:outline-none focus:border-brand-500" />
                 </div>
-                {selectedUsers.length > 0 && (
-                  <div className="flex flex-wrap gap-1.5 mb-2">
-                    {selectedUsers.map(id => {
-                      const u = users.find(u => u.id === id);
-                      return u ? (
-                        <span key={id} className="flex items-center gap-1 px-2.5 py-1 bg-brand-500/10 text-brand-600 rounded-full text-xs font-medium">
-                          {u.name}
-                          <button onClick={() => toggleUser(id)} className="ml-0.5 hover:text-red-500">×</button>
-                        </span>
-                      ) : null;
-                    })}
-                  </div>
-                )}
                 <div className="border border-slate-200 rounded-xl overflow-hidden max-h-44 overflow-y-auto">
                   {users.filter(u =>
                     u.role === 'USER' &&
+                    !selectedUsers.includes(u.id) &&
                     !courseEnrollments.find(e => e.userId === u.id) &&
                     u.name.toLowerCase().includes(userSearch.toLowerCase())
                   ).length === 0 ? (
@@ -541,14 +549,12 @@ export default function CourseManagement({ showToast }) {
                   ) : (
                     users.filter(u =>
                       u.role === 'USER' &&
+                      !selectedUsers.includes(u.id) &&
                       !courseEnrollments.find(e => e.userId === u.id) &&
                       u.name.toLowerCase().includes(userSearch.toLowerCase())
                     ).map(u => (
-                      <label key={u.id} onClick={() => toggleUser(u.id)}
-                        className={`flex items-center gap-3 px-4 py-2.5 cursor-pointer transition-colors border-b border-slate-50 last:border-0 ${selectedUsers.includes(u.id) ? 'bg-brand-50' : 'hover:bg-slate-50'}`}>
-                        <div className={`w-4 h-4 rounded flex items-center justify-center border transition-colors flex-shrink-0 ${selectedUsers.includes(u.id) ? 'bg-brand-500 border-brand-500' : 'border-slate-300'}`}>
-                          {selectedUsers.includes(u.id) && <Icon name="check" size={10} className="text-white" />}
-                        </div>
+                      <button key={u.id} onClick={() => toggleUser(u.id)}
+                        className="w-full flex items-center gap-3 px-4 py-2.5 hover:bg-brand-50 transition-colors border-b border-slate-50 last:border-0 text-left">
                         <div className="w-7 h-7 rounded-full bg-brand-500/10 flex items-center justify-center text-[10px] font-bold text-brand-600 flex-shrink-0">
                           {u.avatar}
                         </div>
@@ -556,7 +562,8 @@ export default function CourseManagement({ showToast }) {
                           <div className="text-sm text-navy-900 font-medium truncate">{u.name}</div>
                           <div className="text-[10px] text-slate-400 truncate">{u.dept}</div>
                         </div>
-                      </label>
+                        <span className="text-brand-500 text-xs flex-shrink-0">+ เพิ่ม</span>
+                      </button>
                     ))
                   )}
                 </div>
