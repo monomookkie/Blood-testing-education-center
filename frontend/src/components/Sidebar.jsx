@@ -5,7 +5,6 @@ import Avatar from './ui/Avatar';
 const adminNav = [
   { to: '/admin/dashboard',    icon: 'home',  label: 'Dashboard' },
   { to: '/admin/courses',      icon: 'book',  label: 'Course Management' },
-  { to: '/admin/training',     icon: 'log',   label: 'Training Logger' },
   { to: '/admin/certificates', icon: 'cert',  label: 'Certificate Engine' },
   { to: '/admin/users',        icon: 'users', label: 'User Directory' },
   { to: '/admin/reports',      icon: 'chart', label: 'Reports' },

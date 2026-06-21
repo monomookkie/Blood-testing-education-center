@@ -10,7 +10,6 @@ import Toast from './components/ui/Toast';
 // Admin pages
 import AdminDashboard from './pages/admin/AdminDashboard';
 import CourseManagement from './pages/admin/CourseManagement';
-import TrainingLogger from './pages/admin/TrainingLogger';
 import CertificateEngine from './pages/admin/CertificateEngine';
 import UsersPage from './pages/admin/UsersPage';
 import Reports from './pages/admin/Reports';
@@ -47,7 +46,6 @@ function AppLayout({ user, onUpdateUser, onLogout, showToast }) {
               <>
                 <Route path="/admin/dashboard"    element={<AdminDashboard {...pageProps} />} />
                 <Route path="/admin/courses"      element={<CourseManagement {...pageProps} />} />
-                <Route path="/admin/training"     element={<TrainingLogger {...pageProps} />} />
                 <Route path="/admin/certificates" element={<CertificateEngine {...pageProps} />} />
                 <Route path="/admin/users"        element={<UsersPage {...pageProps} />} />
                 <Route path="/admin/reports"      element={<Reports {...pageProps} />} />

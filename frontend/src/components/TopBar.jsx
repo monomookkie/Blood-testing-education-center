@@ -5,7 +5,6 @@ import Icon from './ui/Icon';
 const titles = {
   '/admin/dashboard':    'Dashboard',
   '/admin/courses':      'Course Management',
-  '/admin/training':     'Training Logger',
   '/admin/certificates': 'Certificate Engine',
   '/admin/users':        'User Directory',
   '/admin/reports':      'Reports & Analytics',
