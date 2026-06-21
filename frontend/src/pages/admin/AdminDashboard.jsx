@@ -19,7 +19,7 @@ export default function AdminDashboard({ showToast }) {
   if (loading) return <div className="flex items-center justify-center h-64 text-slate-400 text-sm">Loading…</div>;
 
   const statCards = [
-    { label: 'Active Staff',        val: summary.users,        icon: 'users', color: '#1A56DB', bg: '#EEF3FF' },
+    { label: 'Active Users',        val: summary.users,        icon: 'users', color: '#1A56DB', bg: '#EEF3FF' },
     { label: 'Published Courses',   val: summary.courses,      icon: 'book',  color: '#0E7490', bg: '#E0F2FE' },
     { label: 'Certificates Issued', val: summary.certificates, icon: 'cert',  color: '#6D28D9', bg: '#F5F3FF' },
     { label: 'Training Sessions',   val: summary.training,     icon: 'log',   color: '#C0392B', bg: '#FDF2F2' },

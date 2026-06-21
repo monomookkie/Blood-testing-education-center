@@ -45,7 +45,7 @@ export default function Reports({ showToast }) {
           <h3 className="text-sm font-semibold text-navy-900">Mandatory Course Compliance</h3>
         </div>
         {compliance.length === 0 ? (
-          <div className="text-center py-12 text-slate-400 text-sm">No staff data available.</div>
+          <div className="text-center py-12 text-slate-400 text-sm">No user data available.</div>
         ) : (
           <div className="divide-y divide-slate-50">
             {compliance.map(({ user, mandatory, complianceRate }) => (

@@ -148,7 +148,7 @@ export default function CertificateEngine({ showToast }) {
           <table className="w-full">
             <thead>
               <tr className="border-b border-slate-100 bg-slate-50">
-                {['Staff', 'Certificate', 'Issued By', 'Issue Date', 'Expiry', 'File'].map(h => (
+                {['User', 'Certificate', 'Issued By', 'Issue Date', 'Expiry', 'File'].map(h => (
                   <th key={h} className="text-left px-5 py-3 text-xs font-semibold text-slate-400">{h}</th>
                 ))}
               </tr>
@@ -196,7 +196,7 @@ export default function CertificateEngine({ showToast }) {
         </div>
       )}
 
-      {tab === 'templates' && (
+      {/* {tab === 'templates' && (
         <div className="space-y-3">
           {templates.map(t => (
             <div key={t.id} className="bg-white rounded-2xl border border-slate-100 p-5 shadow-sm flex items-center gap-4">
@@ -213,7 +213,7 @@ export default function CertificateEngine({ showToast }) {
           ))}
           {templates.length === 0 && <div className="text-center py-12 text-slate-400 text-sm">No templates yet.</div>}
         </div>
-      )}
+      )} */}
 
       {/* Issue Modal */}
       <Modal open={showIssue} onClose={() => setShowIssue(false)} title="Issue Certificate" size="440px">

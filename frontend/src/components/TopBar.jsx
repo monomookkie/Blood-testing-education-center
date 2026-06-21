@@ -7,7 +7,7 @@ const titles = {
   '/admin/courses':      'Course Management',
   '/admin/training':     'Training Logger',
   '/admin/certificates': 'Certificate Engine',
-  '/admin/users':        'Staff Directory',
+  '/admin/users':        'User Directory',
   '/admin/reports':      'Reports & Analytics',
   '/dashboard':          'My Dashboard',
   '/courses':            'Course Catalogue',

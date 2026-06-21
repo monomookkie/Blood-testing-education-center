@@ -7,7 +7,7 @@ const adminNav = [
   { to: '/admin/courses',      icon: 'book',  label: 'Course Management' },
   { to: '/admin/training',     icon: 'log',   label: 'Training Logger' },
   { to: '/admin/certificates', icon: 'cert',  label: 'Certificate Engine' },
-  { to: '/admin/users',        icon: 'users', label: 'Staff Directory' },
+  { to: '/admin/users',        icon: 'users', label: 'User Directory' },
   { to: '/admin/reports',      icon: 'chart', label: 'Reports' },
 ];
 

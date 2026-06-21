@@ -60,7 +60,7 @@ export default function UsersPage({ showToast }) {
     <div className="p-4 md:p-7 page-enter">
       <div className="flex items-center justify-between mb-6">
         <div>
-          <h2 className="text-xl font-semibold text-navy-900">Staff Directory</h2>
+          <h2 className="text-xl font-semibold text-navy-900">User Directory</h2>
           <p className="text-slate-400 text-sm mt-1">{users.length} registered users</p>
         </div>
         <button onClick={openNew} className="flex items-center gap-2 px-3 md:px-4 py-2 bg-brand-500 hover:bg-brand-600 text-white rounded-xl text-sm font-medium transition-colors">
