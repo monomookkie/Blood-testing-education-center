@@ -1,7 +1,7 @@
 import { useState, useEffect, useRef } from 'react';
 import { api } from '../../api';
 import Icon from '../../components/ui/Icon';
-import Badge from '../../components/ui/Badge';
+
 import Modal from '../../components/ui/Modal';
 import { CertificateSkeleton } from '../../components/ui/Skeleton';
 
@@ -106,37 +106,95 @@ export default function MyCertificates({ user, showToast }) {
           <div className="text-xs font-semibold text-slate-400 uppercase tracking-wider mb-3">Course Certificates</div>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
             {certs.map(c => (
-              <div key={c.id} className="bg-white rounded-2xl border border-slate-100 p-5 md:p-6 shadow-sm">
-                {/* cert card — captured for PDF */}
+              <div key={c.id} className="bg-white rounded-2xl border border-slate-100 shadow-sm overflow-hidden">
+                {/* Certificate card — captured for PDF */}
                 <div ref={el => certRefs.current[c.id] = el}
-                  className="rounded-xl p-4 md:p-5 mb-4 text-white text-center"
-                  style={{ background: 'linear-gradient(135deg,#0D1B2A,#1A56DB)' }}>
-                  <img src="/logo.png" alt="Logo" className="w-12 h-12 mx-auto mb-1 object-contain" />
-                  <div className="text-[10px] uppercase tracking-widest opacity-60 mb-4">Certificate of Completion</div>
-                  <div className="text-xs opacity-70 mb-1">This certifies that</div>
-                  <div className="font-semibold text-base mb-1">{user.name}</div>
-                  <div className="text-xs opacity-70 mb-3">has successfully completed</div>
-                  <div className="text-sm font-medium px-4 leading-snug">{c.course?.title}</div>
-                  <div className="mt-3 text-[10px] opacity-50">Score: {c.score}% · Issued {new Date(c.issuedAt).toLocaleDateString('en-GB')}</div>
-                  <div className="mt-1 font-mono text-[10px] opacity-30">{c.certNumber}</div>
+                  className="relative text-white overflow-hidden"
+                  style={{ background: 'linear-gradient(135deg, #0a1628 0%, #0f2d5e 45%, #1a4fa8 100%)', minHeight: 260, padding: '32px 40px' }}>
+
+                  {/* Corner ornaments */}
+                  <div className="absolute top-0 left-0 w-20 h-20 opacity-20" style={{ background: 'radial-gradient(circle at 0% 0%, #C8A84B 0%, transparent 70%)' }} />
+                  <div className="absolute top-0 right-0 w-20 h-20 opacity-20" style={{ background: 'radial-gradient(circle at 100% 0%, #C8A84B 0%, transparent 70%)' }} />
+                  <div className="absolute bottom-0 left-0 w-20 h-20 opacity-20" style={{ background: 'radial-gradient(circle at 0% 100%, #C8A84B 0%, transparent 70%)' }} />
+                  <div className="absolute bottom-0 right-0 w-20 h-20 opacity-20" style={{ background: 'radial-gradient(circle at 100% 100%, #C8A84B 0%, transparent 70%)' }} />
+
+                  {/* Gold border frame */}
+                  <div className="absolute inset-3 rounded-lg pointer-events-none" style={{ border: '1px solid rgba(200,168,75,0.35)' }} />
+                  <div className="absolute inset-4 rounded-lg pointer-events-none" style={{ border: '1px solid rgba(200,168,75,0.15)' }} />
+
+                  {/* Top decorative line */}
+                  <div className="absolute top-7 left-1/2 -translate-x-1/2 flex items-center gap-2" style={{ width: '60%' }}>
+                    <div className="flex-1 h-px" style={{ background: 'linear-gradient(to right, transparent, rgba(200,168,75,0.6))' }} />
+                    <div className="w-1 h-1 rounded-full" style={{ background: '#C8A84B' }} />
+                    <div className="flex-1 h-px" style={{ background: 'linear-gradient(to left, transparent, rgba(200,168,75,0.6))' }} />
+                  </div>
+
+                  {/* Content */}
+                  <div className="relative text-center">
+                    {/* Logo */}
+                    <div className="flex justify-center mb-3">
+                      <div className="w-14 h-14 rounded-full bg-white/10 backdrop-blur-sm flex items-center justify-center border border-white/20 shadow-lg">
+                        <img src="/logo.png" alt="Logo" className="w-10 h-10 object-contain" />
+                      </div>
+                    </div>
+
+                    {/* Title */}
+                    <div className="text-[10px] uppercase tracking-[0.3em] mb-1" style={{ color: '#C8A84B' }}>Certificate of Completion</div>
+                    <div className="w-16 h-px mx-auto mb-4" style={{ background: 'linear-gradient(to right, transparent, #C8A84B, transparent)' }} />
+
+                    <div className="text-[11px] opacity-60 mb-1 italic">This is to certify that</div>
+                    <div className="text-xl font-bold mb-1 tracking-wide" style={{ textShadow: '0 1px 8px rgba(0,0,0,0.4)' }}>{user.name}</div>
+                    <div className="text-[11px] opacity-60 mb-3 italic">has successfully completed the course</div>
+
+                    <div className="text-sm font-semibold leading-snug px-6 mb-4" style={{ color: '#d4e4ff' }}>
+                      {c.course?.title}
+                    </div>
+
+                    {/* Bottom divider */}
+                    <div className="w-16 h-px mx-auto mb-3" style={{ background: 'linear-gradient(to right, transparent, #C8A84B, transparent)' }} />
+
+                    {/* Score + Date row */}
+                    <div className="flex items-center justify-center gap-4 text-[10px]">
+                      <div className="text-center">
+                        <div className="opacity-50 mb-0.5">Score</div>
+                        <div className="font-bold text-sm" style={{ color: '#C8A84B' }}>{c.score}%</div>
+                      </div>
+                      <div className="w-px h-6 opacity-20 bg-white" />
+                      <div className="text-center">
+                        <div className="opacity-50 mb-0.5">Issued</div>
+                        <div className="font-medium opacity-80">{new Date(c.issuedAt).toLocaleDateString('en-GB')}</div>
+                      </div>
+                      <div className="w-px h-6 opacity-20 bg-white" />
+                      <div className="text-center">
+                        <div className="opacity-50 mb-0.5">Category</div>
+                        <div className="font-medium opacity-80">{c.course?.category}</div>
+                      </div>
+                    </div>
+
+                    {/* Cert number */}
+                    <div className="mt-3 font-mono text-[9px] opacity-25 tracking-wider">{c.certNumber}</div>
+                  </div>
+
+                  {/* Bottom decorative line */}
+                  <div className="absolute bottom-7 left-1/2 -translate-x-1/2 flex items-center gap-2" style={{ width: '60%' }}>
+                    <div className="flex-1 h-px" style={{ background: 'linear-gradient(to right, transparent, rgba(200,168,75,0.6))' }} />
+                    <div className="w-1 h-1 rounded-full" style={{ background: '#C8A84B' }} />
+                    <div className="flex-1 h-px" style={{ background: 'linear-gradient(to left, transparent, rgba(200,168,75,0.6))' }} />
+                  </div>
                 </div>
-                <div className="flex items-center justify-between">
-                  <div>
-                    <div className="text-xs text-slate-500 mb-0.5">{c.course?.category}</div>
-                    <div className="text-[11px] text-slate-400">Issued {new Date(c.issuedAt).toLocaleDateString()}</div>
-                  </div>
-                  <div className="flex items-center gap-2">
-                    <Badge variant="green" className="text-sm font-semibold">{c.score}%</Badge>
-                    <button onClick={() => handleDownload(c)} disabled={downloadingId === c.id}
-                      className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-white text-xs font-medium transition-colors disabled:opacity-60">
-                      {downloadingId === c.id ? (
-                        <span className="w-3 h-3 border-2 border-white/30 border-t-white rounded-full animate-spin inline-block" />
-                      ) : (
-                        <Icon name="download" size={12} />
-                      )}
-                      {downloadingId === c.id ? 'Generating…' : 'Download PDF'}
-                    </button>
-                  </div>
+
+                {/* Action bar */}
+                <div className="px-5 py-3 flex items-center justify-between bg-slate-50 border-t border-slate-100">
+                  <div className="text-[11px] text-slate-400">{new Date(c.issuedAt).toLocaleDateString('en-GB')}</div>
+                  <button onClick={() => handleDownload(c)} disabled={downloadingId === c.id}
+                    className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-white text-xs font-medium transition-colors disabled:opacity-60">
+                    {downloadingId === c.id ? (
+                      <span className="w-3 h-3 border-2 border-white/30 border-t-white rounded-full animate-spin inline-block" />
+                    ) : (
+                      <Icon name="download" size={12} />
+                    )}
+                    {downloadingId === c.id ? 'Generating…' : 'Download PDF'}
+                  </button>
                 </div>
               </div>
             ))}

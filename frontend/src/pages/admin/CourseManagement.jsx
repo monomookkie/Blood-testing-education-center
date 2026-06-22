@@ -64,14 +64,14 @@ export default function CourseManagement({ showToast }) {
     Promise.all([load(), api.getUsers().then(setUsers)]).finally(() => setInitLoading(false));
   }, []);
 
-  if (initLoading) return <CourseManagementSkeleton />;
-
   // Re-fetch users every time the assign tab is opened
   useEffect(() => {
     if (showModal && modalTab === 'assign') {
       api.getUsers().then(setUsers);
     }
   }, [showModal, modalTab]);
+
+  if (initLoading) return <CourseManagementSkeleton />;
 
   const filtered =
     filter === "all"
