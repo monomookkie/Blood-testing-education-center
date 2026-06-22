@@ -162,11 +162,13 @@ export default function UserDashboard({ user, showToast }) {
             {popupAnn.link ? (
               <a href={popupAnn.link} target="_blank" rel="noopener noreferrer" onClick={closePopup}>
                 <img src={popupAnn.fileData} alt={popupAnn.title}
-                  className="rounded-2xl shadow-2xl max-h-[80vh] max-w-[90vw] object-contain cursor-pointer" />
+                  className="rounded-2xl shadow-2xl object-contain cursor-pointer"
+                  style={{ width: 'min(600px, 90vw)', height: 'min(600px, 75vh)' }} />
               </a>
             ) : (
               <img src={popupAnn.fileData} alt={popupAnn.title}
-                className="rounded-2xl shadow-2xl max-h-[80vh] max-w-[90vw] object-contain" />
+                className="rounded-2xl shadow-2xl object-contain"
+                style={{ width: 'min(600px, 90vw)', height: 'min(600px, 75vh)' }} />
             )}
           </div>
         </div>
