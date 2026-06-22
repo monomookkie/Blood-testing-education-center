@@ -41,6 +41,7 @@ router.put('/me', requireAuth, async (req, res, next) => {
       data.avatar = name.trim().split(/\s+/).map(x => x[0]).join('').slice(0, 2).toUpperCase();
     }
     if (dept?.trim()) data.dept = dept.trim();
+    if (req.body.position !== undefined) data.position = req.body.position?.trim() || null;
     if (newPassword) {
       if (!currentPassword) return res.status(400).json({ error: 'Current password required' });
       const match = await bcrypt.compare(currentPassword, user.password);
@@ -56,13 +57,13 @@ router.put('/me', requireAuth, async (req, res, next) => {
 // POST /api/users  (admin create)
 router.post('/', requireAdmin, async (req, res, next) => {
   try {
-    const { name, email, password, role, dept } = req.body;
+    const { name, email, password, role, dept, position } = req.body;
     const existing = await prisma.user.findUnique({ where: { email: email.toLowerCase() } });
     if (existing) return res.status(400).json({ error: 'Email already registered' });
     const avatar = name.trim().split(/\s+/).map(x => x[0]).join('').slice(0, 2).toUpperCase();
     const hashed = await bcrypt.hash(password || 'pass123', 10);
     const user = await prisma.user.create({
-      data: { name: name.trim(), email: email.toLowerCase(), password: hashed, role: role?.toUpperCase() || 'USER', dept: dept?.trim() || 'User', avatar }
+      data: { name: name.trim(), email: email.toLowerCase(), password: hashed, role: role?.toUpperCase() || 'USER', dept: dept?.trim() || 'User', position: position?.trim() || null, avatar }
     });
     res.status(201).json(safeUser(user));
   } catch (e) { next(e); }
@@ -71,12 +72,13 @@ router.post('/', requireAdmin, async (req, res, next) => {
 // PUT /api/users/:id  (admin update)
 router.put('/:id', requireAdmin, async (req, res, next) => {
   try {
-    const { name, email, role, dept, password } = req.body;
+    const { name, email, role, dept, position, password } = req.body;
     const data = {};
     if (name?.trim()) { data.name = name.trim(); data.avatar = name.trim().split(/\s+/).map(x => x[0]).join('').slice(0, 2).toUpperCase(); }
     if (email) data.email = email.toLowerCase();
     if (role) data.role = role.toUpperCase();
     if (dept) data.dept = dept;
+    if (position !== undefined) data.position = position?.trim() || null;
     if (password) {
       if (password.length < 6) return res.status(400).json({ error: 'Password min 6 characters' });
       data.password = await bcrypt.hash(password, 10);

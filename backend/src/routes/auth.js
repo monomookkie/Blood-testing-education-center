@@ -34,7 +34,7 @@ router.post('/login', async (req, res, next) => {
 // POST /api/auth/register
 router.post('/register', async (req, res, next) => {
   try {
-    const { name, email, password, dept } = req.body;
+    const { name, email, password, dept, position } = req.body;
     if (!name?.trim() || !email?.trim() || !password) return res.status(400).json({ error: 'All required fields missing' });
     if (!email.toLowerCase().endsWith('@' + ALLOWED_DOMAIN)) return res.status(400).json({ error: `Only @${ALLOWED_DOMAIN} emails allowed` });
     if (password.length < 6) return res.status(400).json({ error: 'Password min 6 characters' });
@@ -43,7 +43,7 @@ router.post('/register', async (req, res, next) => {
     const avatar = name.trim().split(/\s+/).map(x => x[0]).join('').slice(0, 2).toUpperCase();
     const hashed = await bcrypt.hash(password, 10);
     const user = await prisma.user.create({
-      data: { name: name.trim(), email: email.toLowerCase(), password: hashed, role: 'USER', dept: dept?.trim() || 'User', avatar }
+      data: { name: name.trim(), email: email.toLowerCase(), password: hashed, role: 'USER', dept: dept?.trim() || 'User', position: position?.trim() || null, avatar }
     });
     res.status(201).json({ token: makeToken(user), user: safeUser(user) });
   } catch (e) { next(e); }

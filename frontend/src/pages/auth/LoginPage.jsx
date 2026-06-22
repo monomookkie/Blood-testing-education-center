@@ -15,6 +15,7 @@ export default function LoginPage({ onLogin, onRegister }) {
   const [regEmail, setRegEmail] = useState('');
   const [regPass, setRegPass] = useState('');
   const [regDept, setRegDept] = useState('');
+  const [regPosition, setRegPosition] = useState('');
   const [regErr, setRegErr] = useState({});
 
   const handleLogin = async () => {
@@ -42,7 +43,7 @@ export default function LoginPage({ onLogin, onRegister }) {
     if (Object.keys(e).length) return;
     setLoading(true);
     try {
-      await onRegister({ name: regName.trim(), email: regEmail.trim().toLowerCase(), password: regPass, dept: regDept.trim() || 'User' });
+      await onRegister({ name: regName.trim(), email: regEmail.trim().toLowerCase(), password: regPass, dept: regDept.trim() || 'User', position: regPosition.trim() || null });
     } catch (e) {
       setRegErr({ email: e.message });
     } finally {
@@ -111,6 +112,7 @@ export default function LoginPage({ onLogin, onRegister }) {
               { label: 'Email *', val: regEmail, set: setRegEmail, err: regErr.email, ph: `name@${ALLOWED_DOMAIN}`, type: 'email' },
               { label: 'Password *', val: regPass, set: setRegPass, err: regErr.pass, ph: 'min 6 characters', type: 'password' },
               { label: 'Department', val: regDept, set: setRegDept, ph: 'e.g. Blood Screening' },
+              { label: 'ตำแหน่งงาน', val: regPosition, set: setRegPosition, ph: 'e.g. นักเทคนิคการแพทย์' },
             ].map(({ label, val, set, err, ph, type }) => (
               <div key={label}>
                 <label className="block text-xs font-medium text-slate-500 mb-1.5">{label}</label>
