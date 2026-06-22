@@ -8,6 +8,7 @@ export function useAuth() {
 
   const login = useCallback(async (email, password) => {
     const data = await api.login(email, password);
+    sessionStorage.clear();
     sessionStorage.setItem('hml_token', data.token);
     sessionStorage.setItem('hml_user', JSON.stringify(data.user));
     setUser(data.user);

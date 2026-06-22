@@ -134,6 +134,7 @@ export default function UserDashboard({ user, showToast }) {
           sessionStorage.setItem('ann_popup_shown', '1');
         }
       })
+      .catch(() => {})
       .finally(() => setLoading(false));
   }, []);
 
