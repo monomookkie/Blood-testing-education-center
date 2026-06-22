@@ -17,6 +17,7 @@ export function useAuth() {
   const logout = useCallback(() => {
     sessionStorage.removeItem('hml_token');
     sessionStorage.removeItem('hml_user');
+    sessionStorage.removeItem('ann_popup_shown');
     setUser(null);
   }, []);
 
