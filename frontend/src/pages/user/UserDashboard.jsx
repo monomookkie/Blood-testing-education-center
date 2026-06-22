@@ -151,26 +151,33 @@ export default function UserDashboard({ user, showToast }) {
 
       {/* Announcement Popup */}
       {popupAnn && popupAnn.fileData && popupAnn.fileData.startsWith('data:image') && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4"
-          style={{ background: 'rgba(0,0,0,0.7)', backdropFilter: 'blur(6px)' }}
+        <div className="fixed inset-0 z-50 flex flex-col items-center justify-center"
+          style={{ background: 'rgba(0,0,0,0.75)', backdropFilter: 'blur(8px)', padding: '20px 16px' }}
           onClick={closePopup}>
-          <div className="relative" onClick={e => e.stopPropagation()}>
+
+          <div className="relative" style={{ maxWidth: 'min(720px, 92vw)' }} onClick={e => e.stopPropagation()}>
+            {/* Close button */}
             <button onClick={closePopup}
-              className="absolute -top-3 -right-3 z-10 w-8 h-8 rounded-full bg-white/90 hover:bg-white text-slate-700 text-lg font-bold flex items-center justify-center shadow-lg border-0">
+              className="absolute -top-4 -right-4 z-10 w-9 h-9 rounded-full bg-white text-slate-700 text-xl font-bold flex items-center justify-center shadow-xl border-0 hover:bg-slate-100 transition-colors">
               ×
             </button>
+
+            {/* Image — natural aspect ratio, fills container width */}
             {popupAnn.link ? (
-              <a href={popupAnn.link} target="_blank" rel="noopener noreferrer" onClick={closePopup}>
+              <a href={popupAnn.link} target="_blank" rel="noopener noreferrer" onClick={closePopup} className="block">
                 <img src={popupAnn.fileData} alt={popupAnn.title}
-                  className="rounded-2xl shadow-2xl object-contain cursor-pointer"
-                  style={{ width: 'min(600px, 90vw)', height: 'min(600px, 75vh)' }} />
+                  className="rounded-2xl shadow-2xl cursor-pointer"
+                  style={{ width: 'min(720px, 92vw)', maxHeight: '78vh', objectFit: 'cover' }} />
               </a>
             ) : (
               <img src={popupAnn.fileData} alt={popupAnn.title}
-                className="rounded-2xl shadow-2xl object-contain"
-                style={{ width: 'min(600px, 90vw)', height: 'min(600px, 75vh)' }} />
+                className="rounded-2xl shadow-2xl"
+                style={{ width: 'min(720px, 92vw)', maxHeight: '78vh', objectFit: 'cover' }} />
             )}
           </div>
+
+          {/* Hint */}
+          <p className="mt-5 text-white/50 text-xs tracking-wide">แตะที่อื่นเพื่อปิด</p>
         </div>
       )}
 
