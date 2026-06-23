@@ -54,16 +54,18 @@ function AnnouncementCarousel({ announcements }) {
                 onClick={() => ann.link && window.open(ann.link, '_blank', 'noopener,noreferrer')}
                 style={{ cursor: ann.link ? 'pointer' : 'default' }}>
                 {img ? (
-                  <div className="mx-auto" style={{ maxWidth: '88%' }}>
-                    <div className="flex items-center gap-2 mb-1.5">
-                      <span className={`text-[9px] font-semibold px-2 py-0.5 rounded-full ${ann.type === 'important' ? 'bg-red-500 text-white' : 'bg-brand-100 text-brand-600'}`}>
-                        {ann.type === 'important' ? 'Important' : 'General'}
-                      </span>
-                      <span className="text-[10px] text-slate-400">{new Date(ann.date).toLocaleDateString()}</span>
+                  <div className="w-full">
+                    <div className="px-5 md:px-7 pt-4 pb-3">
+                      <div className="flex items-center gap-2 mb-2">
+                        <span className={`text-xs font-bold px-3 py-1 rounded-full ${ann.type === 'important' ? 'bg-red-500 text-white' : 'bg-brand-100 text-brand-600'}`}>
+                          {ann.type === 'important' ? 'Important' : 'General'}
+                        </span>
+                        <span className="text-xs text-slate-400">{new Date(ann.date).toLocaleDateString()}</span>
+                      </div>
+                      <p className="font-bold text-slate-900 text-xl md:text-2xl mb-1 line-clamp-1">{ann.title}</p>
+                      {ann.content && <p className="text-slate-500 text-sm line-clamp-2">{ann.content}</p>}
                     </div>
-                    <p className="font-semibold text-slate-800 text-sm mb-0.5 line-clamp-1">{ann.title}</p>
-                    {ann.content && <p className="text-slate-500 text-xs mb-2 line-clamp-2">{ann.content}</p>}
-                    <div className="relative overflow-hidden rounded-2xl" style={{ aspectRatio: '16/9', maxHeight: '340px' }}>
+                    <div className="group relative overflow-hidden" style={{ aspectRatio: '16/9', maxHeight: '340px' }}>
                       <img src={ann.fileData} alt="" aria-hidden="true"
                         className="absolute inset-0 w-full h-full object-cover scale-110 blur-2xl opacity-90" />
                       <img src={ann.fileData} alt={ann.title}
@@ -71,11 +73,11 @@ function AnnouncementCarousel({ announcements }) {
                       {announcements.length > 1 && (
                         <>
                           <button onClick={e => { e.stopPropagation(); prev(); }}
-                            className="absolute left-2 top-1/2 -translate-y-1/2 w-7 h-7 rounded-full bg-black/30 hover:bg-black/50 text-white flex items-center justify-center text-base transition-colors z-10">
+                            className="absolute left-2 top-1/2 -translate-y-1/2 w-7 h-7 rounded-full bg-black/30 hover:bg-black/50 text-white flex items-center justify-center text-base transition-all z-10 opacity-0 group-hover:opacity-100">
                             ‹
                           </button>
                           <button onClick={e => { e.stopPropagation(); next(); }}
-                            className="absolute right-2 top-1/2 -translate-y-1/2 w-7 h-7 rounded-full bg-black/30 hover:bg-black/50 text-white flex items-center justify-center text-base transition-colors z-10">
+                            className="absolute right-2 top-1/2 -translate-y-1/2 w-7 h-7 rounded-full bg-black/30 hover:bg-black/50 text-white flex items-center justify-center text-base transition-all z-10 opacity-0 group-hover:opacity-100">
                             ›
                           </button>
                         </>
@@ -172,6 +174,10 @@ export default function UserDashboard({ user, showToast }) {
 
       {announcements.length > 0 && <AnnouncementCarousel announcements={announcements} />}
 
+      <div className="mb-6">
+        <h2 className="text-xl font-semibold text-navy-900">Welcome back, {user.name.split(' ')[0]}</h2>
+      </div>
+
       {/* Stats */}
       <div className="grid grid-cols-3 gap-3 md:gap-4 mb-6">
         {[
@@ -189,10 +195,6 @@ export default function UserDashboard({ user, showToast }) {
             </div>
           </div>
         ))}
-      </div>
-
-      <div className="mb-6">
-        <h2 className="text-xl font-semibold text-navy-900">Welcome back, {user.name.split(' ')[0]}</h2>
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-5">
