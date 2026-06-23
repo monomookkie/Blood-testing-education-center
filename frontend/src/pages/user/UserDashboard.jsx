@@ -54,23 +54,32 @@ function AnnouncementCarousel({ announcements }) {
                 onClick={() => ann.link && window.open(ann.link, '_blank', 'noopener,noreferrer')}
                 style={{ cursor: ann.link ? 'pointer' : 'default' }}>
                 {img ? (
-                  <div className="relative overflow-hidden rounded-2xl mx-auto" style={{ aspectRatio: '16/9', maxHeight: '340px', maxWidth: '88%' }}>
-                    {/* Blurred background */}
-                    <img src={ann.fileData} alt="" aria-hidden="true"
-                      className="absolute inset-0 w-full h-full object-cover scale-110 blur-2xl opacity-90" />
-                    {/* Foreground image */}
-                    <img src={ann.fileData} alt={ann.title}
-                      className="absolute inset-0 w-full h-full object-contain" />
-                    <div className="absolute inset-0 bg-gradient-to-t from-black/65 via-black/10 to-transparent" />
-                    <div className="absolute bottom-0 left-0 right-0 p-3 md:p-5">
-                      <div className="flex items-center gap-2 mb-1">
-                        <span className={`text-[9px] font-semibold px-2 py-0.5 rounded-full ${ann.type === 'important' ? 'bg-red-500 text-white' : 'bg-white/20 text-white backdrop-blur-sm'}`}>
-                          {ann.type === 'important' ? 'Important' : 'General'}
-                        </span>
-                        <span className="text-[10px] text-white/60">{new Date(ann.date).toLocaleDateString()}</span>
-                      </div>
-                      <p className="text-white font-semibold text-sm md:text-base leading-snug line-clamp-1">{ann.title}</p>
-                      {ann.content && <p className="text-white/75 text-xs mt-0.5 line-clamp-2">{ann.content}</p>}
+                  <div className="mx-auto" style={{ maxWidth: '88%' }}>
+                    <div className="flex items-center gap-2 mb-1.5">
+                      <span className={`text-[9px] font-semibold px-2 py-0.5 rounded-full ${ann.type === 'important' ? 'bg-red-500 text-white' : 'bg-brand-100 text-brand-600'}`}>
+                        {ann.type === 'important' ? 'Important' : 'General'}
+                      </span>
+                      <span className="text-[10px] text-slate-400">{new Date(ann.date).toLocaleDateString()}</span>
+                    </div>
+                    <p className="font-semibold text-slate-800 text-sm mb-0.5 line-clamp-1">{ann.title}</p>
+                    {ann.content && <p className="text-slate-500 text-xs mb-2 line-clamp-2">{ann.content}</p>}
+                    <div className="relative overflow-hidden rounded-2xl" style={{ aspectRatio: '16/9', maxHeight: '340px' }}>
+                      <img src={ann.fileData} alt="" aria-hidden="true"
+                        className="absolute inset-0 w-full h-full object-cover scale-110 blur-2xl opacity-90" />
+                      <img src={ann.fileData} alt={ann.title}
+                        className="absolute inset-0 w-full h-full object-contain" />
+                      {announcements.length > 1 && (
+                        <>
+                          <button onClick={e => { e.stopPropagation(); prev(); }}
+                            className="absolute left-2 top-1/2 -translate-y-1/2 w-7 h-7 rounded-full bg-black/30 hover:bg-black/50 text-white flex items-center justify-center text-base transition-colors z-10">
+                            ‹
+                          </button>
+                          <button onClick={e => { e.stopPropagation(); next(); }}
+                            className="absolute right-2 top-1/2 -translate-y-1/2 w-7 h-7 rounded-full bg-black/30 hover:bg-black/50 text-white flex items-center justify-center text-base transition-colors z-10">
+                            ›
+                          </button>
+                        </>
+                      )}
                     </div>
                   </div>
                 ) : (
@@ -90,19 +99,6 @@ function AnnouncementCarousel({ announcements }) {
           })}
         </div>
 
-        {/* Arrow buttons */}
-        {announcements.length > 1 && (
-          <>
-            <button onClick={prev}
-              className="absolute left-2 top-1/2 -translate-y-1/2 w-7 h-7 rounded-full bg-black/30 hover:bg-black/50 text-white flex items-center justify-center text-base transition-colors z-10">
-              ‹
-            </button>
-            <button onClick={next}
-              className="absolute right-2 top-1/2 -translate-y-1/2 w-7 h-7 rounded-full bg-black/30 hover:bg-black/50 text-white flex items-center justify-center text-base transition-colors z-10">
-              ›
-            </button>
-          </>
-        )}
       </div>
 
       {/* Dots */}
@@ -174,10 +170,6 @@ export default function UserDashboard({ user, showToast }) {
         </div>
       )}
 
-      <div className="mb-6">
-        <h2 className="text-xl font-semibold text-navy-900">Welcome back, {user.name.split(' ')[0]}</h2>
-      </div>
-
       {announcements.length > 0 && <AnnouncementCarousel announcements={announcements} />}
 
       {/* Stats */}
@@ -197,6 +189,10 @@ export default function UserDashboard({ user, showToast }) {
             </div>
           </div>
         ))}
+      </div>
+
+      <div className="mb-6">
+        <h2 className="text-xl font-semibold text-navy-900">Welcome back, {user.name.split(' ')[0]}</h2>
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-5">
