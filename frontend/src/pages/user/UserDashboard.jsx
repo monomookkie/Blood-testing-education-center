@@ -40,7 +40,7 @@ function AnnouncementCarousel({ announcements }) {
   const hasImage = a.fileData && a.fileData.startsWith('data:image');
 
   return (
-    <div className="mb-4">
+    <div className="mb-4 max-w-2xl mx-auto">
       <div className="relative overflow-hidden rounded-2xl shadow-sm select-none"
         onTouchStart={onTouchStart} onTouchEnd={onTouchEnd}>
 
@@ -65,7 +65,7 @@ function AnnouncementCarousel({ announcements }) {
                       <p className="font-bold text-slate-900 text-xl md:text-2xl mb-1 line-clamp-1">{ann.title}</p>
                       {ann.content && <p className="text-slate-500 text-sm line-clamp-2">{ann.content}</p>}
                     </div>
-                    <div className="group relative overflow-hidden" style={{ aspectRatio: '16/9', maxHeight: '340px' }}>
+                    <div className="group relative w-full overflow-hidden aspect-video">
                       <img src={ann.fileData} alt="" aria-hidden="true"
                         className="absolute inset-0 w-full h-full object-cover scale-110 blur-2xl opacity-90" />
                       <img src={ann.fileData} alt={ann.title}
