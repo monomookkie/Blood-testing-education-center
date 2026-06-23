@@ -59,7 +59,7 @@ export default function TrainingLogger({ showToast }) {
   const inputCls = 'w-full px-3 py-2 rounded-xl border border-slate-200 bg-slate-50 text-sm focus:outline-none focus:border-brand-500 focus:bg-white transition-all';
 
   return (
-    <div className="p-7 page-enter">
+    <div className="p-4 md:p-7 page-enter">
       <div className="flex items-center justify-between mb-6">
         <div>
           <h2 className="text-xl font-semibold text-navy-900">Training Logger</h2>
@@ -115,7 +115,7 @@ export default function TrainingLogger({ showToast }) {
             <label className="block text-xs font-medium text-slate-500 mb-1.5">Title *</label>
             <input value={form.title} onChange={e => setForm(f => ({ ...f, title: e.target.value }))} className={inputCls} placeholder="e.g. Annual BioSafety Refresher" />
           </div>
-          <div className="grid grid-cols-2 gap-4">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div>
               <label className="block text-xs font-medium text-slate-500 mb-1.5">Date *</label>
               <input type="date" value={form.date} onChange={e => setForm(f => ({ ...f, date: e.target.value }))} className={inputCls} />
@@ -129,7 +129,7 @@ export default function TrainingLogger({ showToast }) {
               </select>
             </div>
           </div>
-          <div className="grid grid-cols-2 gap-4">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div>
               <label className="block text-xs font-medium text-slate-500 mb-1.5">Trainer</label>
               <input value={form.trainer} onChange={e => setForm(f => ({ ...f, trainer: e.target.value }))} className={inputCls} />
@@ -139,7 +139,7 @@ export default function TrainingLogger({ showToast }) {
               <input value={form.location} onChange={e => setForm(f => ({ ...f, location: e.target.value }))} className={inputCls} />
             </div>
           </div>
-          <div className="grid grid-cols-2 gap-4">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div>
               <label className="block text-xs font-medium text-slate-500 mb-1.5">Duration (min) *</label>
               <input type="number" value={form.duration} onChange={e => setForm(f => ({ ...f, duration: e.target.value }))} className={inputCls} />

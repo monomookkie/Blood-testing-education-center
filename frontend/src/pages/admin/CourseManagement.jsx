@@ -217,7 +217,7 @@ export default function CourseManagement({ showToast }) {
     "w-full px-3 py-2 rounded-xl border border-slate-200 bg-slate-50 text-sm focus:outline-none focus:border-brand-500 focus:bg-white transition-all";
 
   return (
-    <div className="p-7 page-enter">
+    <div className="p-4 md:p-7 page-enter">
       <div className="flex items-center justify-between mb-6">
         <div>
           <h2 className="text-xl font-semibold text-navy-900">
@@ -353,7 +353,7 @@ export default function CourseManagement({ showToast }) {
           {/* ── Tab: Course Info ── */}
           {modalTab === 'info' && (
             <div className="space-y-4">
-              <div className="grid grid-cols-2 gap-4">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div>
                   <label className="block text-xs font-medium text-slate-500 mb-1.5">Title *</label>
                   <input value={form.title} onChange={e => setForm(f => ({ ...f, title: e.target.value }))} className={inputCls} placeholder="Course title" />
@@ -367,7 +367,7 @@ export default function CourseManagement({ showToast }) {
                 <label className="block text-xs font-medium text-slate-500 mb-1.5">Description</label>
                 <textarea value={form.description} onChange={e => setForm(f => ({ ...f, description: e.target.value }))} rows={3} className={inputCls + " resize-none"} />
               </div>
-              <div className="grid grid-cols-3 gap-4">
+              <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
                 <div>
                   <label className="block text-xs font-medium text-slate-500 mb-1.5">Status</label>
                   <select value={form.status} onChange={e => setForm(f => ({ ...f, status: e.target.value }))} className={inputCls}>

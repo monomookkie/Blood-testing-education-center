@@ -85,7 +85,7 @@ export default function CertificateEngine({ showToast }) {
   };
 
   return (
-    <div className="p-7 page-enter">
+    <div className="p-4 md:p-7 page-enter">
       <div className="flex items-center justify-between mb-6">
         <div>
           <h2 className="text-xl font-semibold text-navy-900">Certificate Engine</h2>
@@ -115,7 +115,8 @@ export default function CertificateEngine({ showToast }) {
                 className="w-full pl-9 pr-4 py-2 rounded-xl border border-slate-200 bg-slate-50 text-sm focus:outline-none focus:border-brand-500" />
             </div>
           </div>
-          <table className="w-full">
+          {/* Desktop table */}
+          <table className="hidden md:table w-full">
             <thead>
               <tr className="border-b border-slate-100 bg-slate-50">
                 {['Recipient', 'Course', 'Cert No.', 'Score', 'Issued', ''].map(h => (
@@ -149,6 +150,27 @@ export default function CertificateEngine({ showToast }) {
               ))}
             </tbody>
           </table>
+          {/* Mobile cards */}
+          <div className="md:hidden divide-y divide-slate-50">
+            {certs.filter(c => {
+              const q = search.toLowerCase();
+              return !q || c.user?.name?.toLowerCase().includes(q) || c.course?.title?.toLowerCase().includes(q) || c.certNumber?.toLowerCase().includes(q);
+            }).map(c => (
+              <div key={c.id} className="p-4 flex items-start gap-3">
+                <Avatar initials={c.user?.avatar} size={36} />
+                <div className="flex-1 min-w-0">
+                  <div className="flex items-center justify-between gap-2">
+                    <span className="text-sm font-medium text-navy-900 truncate">{c.user?.name}</span>
+                    <Badge variant="green">{c.score}%</Badge>
+                  </div>
+                  <p className="text-xs text-slate-500 truncate">{c.course?.title}</p>
+                  <p className="font-mono text-[11px] text-slate-400 mt-0.5">{c.certNumber}</p>
+                  <p className="text-[11px] text-slate-400">{new Date(c.issuedAt).toLocaleDateString()}</p>
+                </div>
+                <button onClick={() => setConfirmDel(c.id)} className="p-1.5 rounded-lg border border-red-100 hover:bg-red-50 text-red-400 flex-shrink-0"><Icon name="trash" size={13}/></button>
+              </div>
+            ))}
+          </div>
           {certs.length === 0 && <div className="text-center py-12 text-slate-400 text-sm">No certificates yet.</div>}
         </div>
       )}
@@ -165,7 +187,8 @@ export default function CertificateEngine({ showToast }) {
               <Icon name="plus" size={14} /> Add
             </button>
           </div>
-          <table className="w-full">
+          {/* Desktop table */}
+          <table className="hidden md:table w-full">
             <thead>
               <tr className="border-b border-slate-100 bg-slate-50">
                 {['User', 'Certificate', 'Issued By', 'Issue Date', 'Expiry', 'File'].map(h => (
@@ -215,6 +238,40 @@ export default function CertificateEngine({ showToast }) {
               })}
             </tbody>
           </table>
+          {/* Mobile cards */}
+          <div className="md:hidden divide-y divide-slate-50">
+            {externalCerts.filter(c => {
+              const q = extSearch.toLowerCase();
+              return !q || c.user?.name?.toLowerCase().includes(q) || c.title?.toLowerCase().includes(q) || c.issuer?.toLowerCase().includes(q);
+            }).map(c => {
+              const openFile = () => {
+                if (!c.fileData) return;
+                const mime = c.fileData.split(';')[0].replace('data:', '');
+                const isViewable = mime.startsWith('image/') || mime === 'application/pdf';
+                const ext = { 'application/msword': 'doc', 'application/vnd.openxmlformats-officedocument.wordprocessingml.document': 'docx', 'application/vnd.ms-excel': 'xls', 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet': 'xlsx' }[mime] || 'file';
+                const bytes = Uint8Array.from(atob(c.fileData.split(',')[1]), ch => ch.charCodeAt(0));
+                const blob = new Blob([bytes], { type: mime });
+                const url = URL.createObjectURL(blob);
+                if (isViewable) { window.open(url, '_blank'); }
+                else { const a = document.createElement('a'); a.href = url; a.download = `${c.title}.${ext}`; a.click(); }
+                setTimeout(() => URL.revokeObjectURL(url), 1000);
+              };
+              return (
+                <div key={c.id} className="p-4 flex items-start gap-3">
+                  <Avatar initials={c.user?.avatar} size={36} />
+                  <div className="flex-1 min-w-0">
+                    <div className="flex items-center justify-between gap-2">
+                      <span className="text-sm font-medium text-navy-900 truncate">{c.user?.name}</span>
+                      {c.fileData && <button onClick={openFile} className="text-xs text-brand-500 hover:underline flex-shrink-0">View</button>}
+                    </div>
+                    <p className="text-sm text-navy-900 truncate">{c.title}</p>
+                    <p className="text-xs text-slate-500">{c.issuer}</p>
+                    <p className="text-[11px] text-slate-400">{new Date(c.issuedAt).toLocaleDateString()}{c.expiresAt ? ` — expires ${new Date(c.expiresAt).toLocaleDateString()}` : ''}</p>
+                  </div>
+                </div>
+              );
+            })}
+          </div>
           {externalCerts.length === 0 && <div className="text-center py-12 text-slate-400 text-sm">No external certificates.</div>}
         </div>
       )}
